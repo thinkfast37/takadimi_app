@@ -1,0 +1,1774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>TAKADIMI — Rhythm Practice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+/* ── CSS RESET + VARS ─────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:           #0b0c15;
+  --surface:      #12131e;
+  --surface2:     #1a1c2e;
+  --surface3:     #222440;
+  --border:       #272a42;
+  --border2:      #333660;
+
+  --amber:        #f0a020;
+  --amber-dim:    #7a520e;
+  --amber-glow:   rgba(240,160,32,0.25);
+  --amber-glow2:  rgba(240,160,32,0.08);
+
+  --text:         #dde0f4;
+  --text-dim:     #6870a0;
+  --text-muted:   #363a58;
+
+  /* Syllable colors */
+  --c-ta:  #f0a020; /* amber  */
+  --c-ka:  #4fc3f7; /* sky    */
+  --c-di:  #81c784; /* green  */
+  --c-mi:  #ce93d8; /* purple */
+  --c-ki:  #4dd0e1; /* teal   */
+  --c-da:  #ffb74d; /* orange */
+
+  --sidebar-w: 300px;
+  --header-h:  64px;
+
+  --font-display: 'Bebas Neue', cursive;
+  --font-mono:    'JetBrains Mono', monospace;
+  --font-ui:      'DM Sans', sans-serif;
+
+  --radius:  6px;
+  --radius2: 10px;
+  --trans:   0.15s ease;
+}
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  line-height: 1.5;
+  overflow: hidden;
+}
+
+/* ── LAYOUT ───────────────────────────────────────────────────────────── */
+.app {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ── SIDEBAR ──────────────────────────────────────────────────────────── */
+.sidebar {
+  width: var(--sidebar-w);
+  min-width: var(--sidebar-w);
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+  z-index: 100;
+}
+
+.sidebar-header {
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.brand {
+  font-family: var(--font-display);
+  font-size: 36px;
+  letter-spacing: 0.05em;
+  color: var(--amber);
+  line-height: 1;
+}
+
+.brand-sub {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+.search-wrap {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.search-input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 12px;
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  outline: none;
+  transition: border-color var(--trans);
+}
+
+.search-input::placeholder { color: var(--text-muted); }
+.search-input:focus { border-color: var(--amber-dim); }
+
+.cat-scroll {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: none;
+}
+.cat-scroll::-webkit-scrollbar { display: none; }
+
+.cat-btn {
+  display: inline-block;
+  padding: 4px 10px;
+  margin: 0 3px 3px 0;
+  border-radius: 20px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--text-dim);
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition: all var(--trans);
+  white-space: nowrap;
+}
+.cat-btn:hover { border-color: var(--amber-dim); color: var(--amber); }
+.cat-btn.active {
+  background: var(--amber);
+  border-color: var(--amber);
+  color: var(--bg);
+  font-weight: 600;
+}
+
+.pattern-count {
+  padding: 6px 16px 4px;
+  font-size: 11px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.pattern-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 0 12px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border2) transparent;
+}
+.pattern-list::-webkit-scrollbar { width: 4px; }
+.pattern-list::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+.pattern-item {
+  padding: 9px 16px;
+  cursor: pointer;
+  border-left: 2px solid transparent;
+  transition: all var(--trans);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.pattern-item:hover {
+  background: var(--surface2);
+  border-left-color: var(--amber-dim);
+}
+.pattern-item.selected {
+  background: var(--amber-glow2);
+  border-left-color: var(--amber);
+}
+.pattern-item-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1.3;
+}
+.pattern-item.selected .pattern-item-name { color: var(--amber); }
+.pattern-item-meta {
+  font-size: 11px;
+  color: var(--text-muted);
+  display: flex;
+  gap: 8px;
+}
+.p-cat  { color: var(--text-dim); }
+.p-ts   { color: var(--text-muted); font-family: var(--font-mono); }
+.p-hits { color: var(--text-muted); }
+
+/* ── MAIN PANEL ───────────────────────────────────────────────────────── */
+.main-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.top-bar {
+  display: none; /* visible on mobile */
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+  gap: 12px;
+  background: var(--surface);
+  flex-shrink: 0;
+}
+
+.burger {
+  background: none;
+  border: none;
+  color: var(--amber);
+  cursor: pointer;
+  font-size: 22px;
+  line-height: 1;
+  padding: 4px;
+}
+
+.top-bar-brand {
+  font-family: var(--font-display);
+  font-size: 26px;
+  color: var(--amber);
+  letter-spacing: 0.05em;
+}
+
+.content-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 28px 32px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border2) transparent;
+}
+.content-area::-webkit-scrollbar { width: 4px; }
+.content-area::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+/* ── PATTERN INFO ─────────────────────────────────────────────────────── */
+.pattern-info {
+  margin-bottom: 24px;
+}
+
+.selected-name {
+  font-family: var(--font-display);
+  font-size: 38px;
+  letter-spacing: 0.04em;
+  color: var(--text);
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+
+.selected-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.badge {
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.badge-cat   { background: var(--surface3); color: var(--text-dim); border: 1px solid var(--border2); }
+.badge-ts    { background: var(--amber-glow2); color: var(--amber); border: 1px solid var(--amber-dim); font-family: var(--font-mono); }
+
+.selected-display {
+  margin-top: 8px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-dim);
+  letter-spacing: 0.05em;
+}
+
+/* ── CONTROLS ─────────────────────────────────────────────────────────── */
+.controls-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 32px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.ctrl-group { display: flex; flex-direction: column; gap: 6px; }
+
+.ctrl-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.tempo-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tempo-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 180px;
+  height: 4px;
+  background: var(--surface3);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+.tempo-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--amber);
+  cursor: pointer;
+  box-shadow: 0 0 8px var(--amber-glow);
+  transition: box-shadow var(--trans);
+}
+.tempo-slider:hover::-webkit-slider-thumb,
+.tempo-slider:focus::-webkit-slider-thumb {
+  box-shadow: 0 0 16px var(--amber-glow);
+}
+.tempo-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--amber);
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 0 8px var(--amber-glow);
+}
+
+.tempo-num {
+  width: 60px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 6px 8px;
+  color: var(--amber);
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 700;
+  text-align: center;
+  outline: none;
+  transition: border-color var(--trans);
+}
+.tempo-num:focus { border-color: var(--amber); }
+
+.bpm-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.preset-btns {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.preset-btn {
+  padding: 5px 10px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  border-radius: var(--radius);
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all var(--trans);
+}
+.preset-btn:hover { border-color: var(--amber-dim); color: var(--amber); }
+.preset-btn.active { background: var(--amber); border-color: var(--amber); color: var(--bg); font-weight: 700; }
+
+.option-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toggle-label {
+  font-size: 12px;
+  color: var(--text-dim);
+  cursor: pointer;
+  user-select: none;
+}
+
+.toggle-check {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--amber);
+  cursor: pointer;
+}
+
+/* ── TRANSPORT ────────────────────────────────────────────────────────── */
+.transport-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.play-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 32px;
+  border-radius: var(--radius2);
+  border: none;
+  background: var(--amber);
+  color: var(--bg);
+  font-family: var(--font-display);
+  font-size: 22px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 20px rgba(240,160,32,0.3);
+}
+.play-btn:hover {
+  background: #f8b530;
+  box-shadow: 0 6px 28px rgba(240,160,32,0.45);
+  transform: translateY(-1px);
+}
+.play-btn:active { transform: translateY(0); }
+.play-btn.playing {
+  background: var(--surface2);
+  color: var(--amber);
+  border: 1px solid var(--amber-dim);
+  box-shadow: 0 0 0 2px var(--amber-glow);
+}
+.play-btn.playing:hover { background: var(--surface3); }
+
+.play-icon { font-size: 18px; line-height: 1; }
+
+.loop-counter {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-dim);
+}
+.loop-counter span { color: var(--amber); font-weight: 700; }
+
+/* ── RHYTHM GRID ──────────────────────────────────────────────────────── */
+.grid-section { margin-bottom: 24px; }
+
+.grid-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.grid-outer {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border2) transparent;
+  padding-bottom: 6px;
+}
+.grid-outer::-webkit-scrollbar { height: 3px; }
+.grid-outer::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+.rhythm-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: min-content;
+}
+
+.measure-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.measure-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  padding-left: 2px;
+}
+
+.beats-row {
+  display: flex;
+  gap: 6px;
+}
+
+.beat-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.beat-num {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  padding-left: 2px;
+  transition: color var(--trans);
+}
+.beat-num.beat-active { color: var(--amber); }
+
+.slots-row {
+  display: flex;
+  gap: 3px;
+}
+
+.slot-cell {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  position: relative;
+  transition: all 0.08s ease;
+  flex-shrink: 0;
+  letter-spacing: -0.02em;
+  user-select: none;
+}
+
+.slot-cell.has-syllable {
+  border-color: var(--border2);
+  background: var(--surface3);
+  color: var(--text);
+}
+
+/* Syllable colors */
+.slot-cell[data-syl="ta"] { color: var(--c-ta); border-color: rgba(240,160,32,0.3); }
+.slot-cell[data-syl="ka"] { color: var(--c-ka); border-color: rgba(79,195,247,0.3); }
+.slot-cell[data-syl="di"] { color: var(--c-di); border-color: rgba(129,199,132,0.3); }
+.slot-cell[data-syl="mi"] { color: var(--c-mi); border-color: rgba(206,147,216,0.3); }
+.slot-cell[data-syl="ki"] { color: var(--c-ki); border-color: rgba(77,208,225,0.3); }
+.slot-cell[data-syl="da"] { color: var(--c-da); border-color: rgba(255,183,77,0.3); }
+
+/* Triplet indicator pip */
+.slot-cell.triplet::after {
+  content: '';
+  position: absolute;
+  bottom: 3px;
+  right: 3px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  opacity: 0.5;
+}
+
+/* Active cell during playback */
+.slot-cell.active {
+  background: var(--amber-glow);
+  border-color: var(--amber) !important;
+  box-shadow: 0 0 14px var(--amber-glow), inset 0 0 6px rgba(240,160,32,0.1);
+  transform: scale(1.06);
+  color: var(--amber) !important;
+  z-index: 1;
+}
+
+.slot-cell.active.has-syllable {
+  background: var(--amber-glow);
+  animation: pulse-cell 0.3s ease-out;
+}
+
+@keyframes pulse-cell {
+  0%   { transform: scale(1.12); box-shadow: 0 0 24px var(--amber-glow), 0 0 48px var(--amber-glow2); }
+  100% { transform: scale(1.06); box-shadow: 0 0 14px var(--amber-glow); }
+}
+
+/* ── BEAT SEPARATORS ──────────────────────────────────────────────────── */
+.beat-sep {
+  width: 2px;
+  border-radius: 1px;
+  background: var(--border);
+  align-self: stretch;
+  margin: 0 1px;
+  flex-shrink: 0;
+}
+
+/* ── EMPTY STATE ──────────────────────────────────────────────────────── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  gap: 12px;
+  color: var(--text-muted);
+}
+.empty-icon { font-size: 40px; opacity: 0.4; }
+.empty-text { font-size: 14px; text-align: center; line-height: 1.6; }
+
+/* ── LEGEND ───────────────────────────────────────────────────────────── */
+.legend {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  margin-top: 8px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.legend-swatch {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  border: 1px solid;
+}
+
+/* ── DONATE BUTTON ───────────────────────────────────────────────────────── */
+.donate-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  margin: 0;
+  border-top: 1px solid var(--border);
+  background: var(--surface2);
+  text-decoration: none;
+  transition: background var(--trans);
+  flex-shrink: 0;
+}
+.donate-btn:hover { background: var(--surface3); }
+
+.donate-icon {
+  font-size: 20px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.donate-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
+}
+
+.donate-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.3;
+}
+
+.donate-sub {
+  font-size: 11px;
+  color: var(--amber);
+  font-weight: 500;
+}
+
+.donate-arrow {
+  font-size: 14px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: color var(--trans), transform var(--trans);
+}
+.donate-btn:hover .donate-arrow {
+  color: var(--amber);
+  transform: translateX(3px);
+}
+
+/* ── OVERLAY (mobile sidebar) ─────────────────────────────────────────── */
+.overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 90;
+  backdrop-filter: blur(2px);
+}
+.overlay.visible { display: block; }
+
+/* ── NO PATTERN PLACEHOLDER ───────────────────────────────────────────── */
+.no-results {
+  padding: 24px 16px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+/* ── MOBILE RESPONSIVE ────────────────────────────────────────────────── */
+@media (max-width: 767px) {
+  html, body { overflow: hidden; }
+
+  .app { flex-direction: column; }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    transform: translateX(-100%);
+    z-index: 100;
+    width: 85%;
+    max-width: 320px;
+  }
+  .sidebar.open { transform: translateX(0); }
+
+  .top-bar { display: flex; }
+
+  .content-area { padding: 16px 16px 24px; }
+
+  .selected-name { font-size: 28px; }
+
+  .controls-row { gap: 20px; }
+
+  .tempo-slider { width: 140px; }
+
+  .slot-cell { width: 36px; height: 36px; font-size: 11px; }
+
+  .play-btn { padding: 12px 24px; font-size: 20px; }
+}
+
+@media (max-width: 400px) {
+  .slot-cell { width: 30px; height: 30px; font-size: 10px; }
+}
+
+/* ── PAGE LOAD ANIMATION ──────────────────────────────────────────────── */
+.sidebar { animation: slide-in-left 0.4s cubic-bezier(0.2,0,0,1) both; }
+@keyframes slide-in-left {
+  from { opacity: 0; transform: translateX(-16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.main-panel { animation: fade-up 0.4s 0.1s cubic-bezier(0.2,0,0,1) both; }
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ── SIDEBAR ─────────────────────────────────────────── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="brand">TAKADIMI</div>
+      <div class="brand-sub">Rhythm Practice</div>
+    </div>
+
+    <div class="search-wrap">
+      <input class="search-input" id="searchInput" type="text"
+             placeholder="Search patterns…" autocomplete="off" autocorrect="off"
+             autocapitalize="off" spellcheck="false">
+    </div>
+
+    <div class="cat-scroll" id="catFilters"></div>
+
+    <div class="pattern-count" id="patternCount"></div>
+    <div class="pattern-list" id="patternList"></div>
+
+    <!-- Donate -->
+    <a class="donate-btn" href="https://buymeacoffee.com/stevetakadimi" target="_blank" rel="noopener">
+      <span class="donate-icon">☕</span>
+      <span class="donate-text">
+        <span class="donate-label">Enjoying Takadimi?</span>
+        <span class="donate-sub">Buy me a coffee</span>
+      </span>
+      <span class="donate-arrow">&rarr;</span>
+    </a>
+  </aside>
+
+  <!-- ── OVERLAY (mobile) ──────────────────────────────── -->
+  <div class="overlay" id="overlay"></div>
+
+  <!-- ── MAIN PANEL ─────────────────────────────────────── -->
+  <main class="main-panel">
+
+    <!-- Mobile top bar -->
+    <div class="top-bar">
+      <button class="burger" id="burgerBtn" aria-label="Open pattern browser">☰</button>
+      <div class="top-bar-brand">TAKADIMI</div>
+    </div>
+
+    <div class="content-area">
+
+      <!-- Selected pattern info -->
+      <div class="pattern-info" id="patternInfo">
+        <div class="empty-state" id="emptyState">
+          <div class="empty-icon">♩</div>
+          <div class="empty-text">Select a pattern from the list<br>to begin practicing</div>
+        </div>
+        <div id="selectedInfo" style="display:none">
+          <div class="selected-name" id="selectedName">—</div>
+          <div class="selected-meta" id="selectedMeta"></div>
+          <div class="selected-display" id="selectedDisplay"></div>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls-row" id="controlsRow" style="display:none">
+
+        <!-- Tempo -->
+        <div class="ctrl-group">
+          <div class="ctrl-label">Tempo</div>
+          <div class="tempo-wrap">
+            <input type="range" class="tempo-slider" id="tempoSlider"
+                   min="40" max="220" value="80" step="1">
+            <div>
+              <input type="number" class="tempo-num" id="tempoNum"
+                     min="40" max="220" value="80">
+              <div class="bpm-label">BPM</div>
+            </div>
+          </div>
+          <div class="preset-btns" id="presetBtns">
+            <button class="preset-btn" data-bpm="57">57</button>
+            <button class="preset-btn" data-bpm="67">67</button>
+            <button class="preset-btn active" data-bpm="80">80</button>
+            <button class="preset-btn" data-bpm="90">90</button>
+            <button class="preset-btn" data-bpm="104">104</button>
+            <button class="preset-btn" data-bpm="120">120</button>
+          </div>
+        </div>
+
+        <!-- Options -->
+        <div class="ctrl-group">
+          <div class="ctrl-label">Options</div>
+          <label class="option-row">
+            <input type="checkbox" class="toggle-check" id="metronomeCheck" checked>
+            <span class="toggle-label">Metronome click</span>
+          </label>
+          <label class="option-row">
+            <input type="checkbox" class="toggle-check" id="countInCheck">
+            <span class="toggle-label">Count-in (1 measure)</span>
+          </label>
+        </div>
+
+      </div>
+
+      <!-- Transport -->
+      <div class="transport-row" id="transportRow" style="display:none">
+        <button class="play-btn" id="playBtn">
+          <span class="play-icon" id="playIcon">▶</span>
+          <span id="playLabel">PLAY</span>
+        </button>
+        <div class="loop-counter" id="loopCounter" style="display:none">
+          Loop <span id="loopNum">0</span>
+        </div>
+      </div>
+
+      <!-- Grid -->
+      <div class="grid-section" id="gridSection" style="display:none">
+        <div class="grid-label">Rhythm Grid</div>
+        <div class="grid-outer">
+          <div class="rhythm-grid" id="rhythmGrid"></div>
+        </div>
+
+        <!-- Legend -->
+        <div class="legend" id="legend">
+          <div class="legend-item">
+            <div class="legend-swatch" style="color:var(--c-ta);border-color:rgba(240,160,32,0.4);background:var(--surface3)">ta</div>
+            Straight downbeat
+          </div>
+          <div class="legend-item">
+            <div class="legend-swatch" style="color:var(--c-ka);border-color:rgba(79,195,247,0.4);background:var(--surface3)">ka</div>
+            16th e (2nd slot)
+          </div>
+          <div class="legend-item">
+            <div class="legend-swatch" style="color:var(--c-di);border-color:rgba(129,199,132,0.4);background:var(--surface3)">di</div>
+            8th and (3rd slot)
+          </div>
+          <div class="legend-item">
+            <div class="legend-swatch" style="color:var(--c-mi);border-color:rgba(206,147,216,0.4);background:var(--surface3)">mi</div>
+            16th a (4th slot)
+          </div>
+          <div class="legend-item">
+            <div class="legend-swatch" style="color:var(--c-ki);border-color:rgba(77,208,225,0.4);background:var(--surface3)">ki</div>
+            Triplet 2nd
+          </div>
+          <div class="legend-item">
+            <div class="legend-swatch" style="color:var(--c-da);border-color:rgba(255,183,77,0.4);background:var(--surface3)">da</div>
+            Triplet 3rd
+          </div>
+          <div class="legend-item">
+            <div class="legend-swatch" style="color:var(--text-muted);border-color:var(--border);background:var(--surface2)"> · </div>
+            Rest
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end content-area -->
+  </main><!-- end main-panel -->
+</div><!-- end app -->
+
+<script>
+'use strict';
+
+// ══════════════════════════════════════════════════════════════════════════════
+// PATTERN DATA
+// ══════════════════════════════════════════════════════════════════════════════
+// Compact helpers
+const _ = null;
+const ta='ta', ka='ka', di='di', mi='mi', ki='ki', da='da';
+const S = (...s) => ({ type:'S', slots:[...s] }); // straight 4 slots
+const T = (...s) => ({ type:'T', slots:[...s] }); // triplet 3 slots
+
+const PATTERNS = [
+
+  // ── 1-BEAT STRAIGHT ───────────────────────────────────────────────────
+  {name:"Quarter Note",            cat:"1-Beat Straight",    disp:"Ta",           ts:"4/4", beats:[S(ta,_,_,_)]},
+  {name:"Two 8th Notes",           cat:"1-Beat Straight",    disp:"Ta · Di ·",    ts:"4/4", beats:[S(ta,_,di,_)]},
+  {name:"Four 16th Notes",         cat:"1-Beat Straight",    disp:"Ta-ka-Di-mi",  ts:"4/4", beats:[S(ta,ka,di,mi)]},
+  {name:"Gallop",                  cat:"1-Beat Straight",    disp:"Ta · · mi",    ts:"4/4", beats:[S(ta,_,_,mi)]},
+  {name:"Reverse Gallop",          cat:"1-Beat Straight",    disp:"Ta-ka · ·",    ts:"4/4", beats:[S(ta,ka,_,_)]},
+  {name:"8th + Two 16ths",         cat:"1-Beat Straight",    disp:"Ta · Di-mi",   ts:"4/4", beats:[S(ta,_,di,mi)]},
+  {name:"Three 16ths + Rest",      cat:"1-Beat Straight",    disp:"Ta-ka-Di ·",   ts:"4/4", beats:[S(ta,ka,di,_)]},
+  {name:"Funky Syncopation",       cat:"1-Beat Straight",    disp:"Ta-ka · mi",   ts:"4/4", beats:[S(ta,ka,_,mi)]},
+
+  // ── 2-BEAT STRAIGHT ───────────────────────────────────────────────────
+  {name:"Two Quarters",            cat:"2-Beat Straight",    disp:"Ta | Ta",            ts:"4/4", beats:[S(ta,_,_,_), S(ta,_,_,_)]},
+  {name:"Dotted Quarter + 8th",    cat:"2-Beat Straight",    disp:"Ta (hold) Di ·",     ts:"4/4", beats:[S(ta,_,_,_), S(_,_,di,_)]},
+  {name:"8th-8th-Quarter",         cat:"2-Beat Straight",    disp:"Ta · Di ·  Ta",      ts:"4/4", beats:[S(ta,_,di,_), S(ta,_,_,_)]},
+  {name:"Quarter + Two 8ths",      cat:"2-Beat Straight",    disp:"Ta  | Ta · Di ·",    ts:"4/4", beats:[S(ta,_,_,_), S(ta,_,di,_)]},
+  {name:"Habanera",                cat:"2-Beat Straight",    disp:"Ta · · mi  Ta",      ts:"4/4", beats:[S(ta,_,_,mi), S(ta,_,_,_)]},
+  {name:"Offbeat 8ths",            cat:"2-Beat Straight",    disp:"· ka · ·  · ka · ·", ts:"4/4", beats:[S(_,ka,_,_), S(_,ka,_,_)]},
+  {name:"Cross Syncopation",       cat:"2-Beat Straight",    disp:"Ta · Di ·  · ka · ·",ts:"4/4", beats:[S(ta,_,di,_), S(_,ka,_,_)]},
+  {name:"Mini-Tresillo",           cat:"2-Beat Straight",    disp:"Ta · · mi · · Di ·", ts:"4/4", beats:[S(ta,_,_,mi), S(_,_,di,_)]},
+  {name:"Tumbling Landing",        cat:"2-Beat Straight",    disp:"Ta · Di-mi  Ta",     ts:"4/4", beats:[S(ta,_,di,mi), S(ta,_,_,_)]},
+
+  // ── 1-MEASURE STRAIGHT ────────────────────────────────────────────────
+  {name:"Four Quarters",           cat:"1-Measure Straight", disp:"Ta | Ta | Ta | Ta",         ts:"4/4", beats:[S(ta,_,_,_),S(ta,_,_,_),S(ta,_,_,_),S(ta,_,_,_)]},
+  {name:"Eight 8th Notes",         cat:"1-Measure Straight", disp:"Ta-Di × 4 beats",           ts:"4/4", beats:[S(ta,_,di,_),S(ta,_,di,_),S(ta,_,di,_),S(ta,_,di,_)]},
+  {name:"Tresillo",                cat:"1-Measure Straight", disp:"Ta · · · | ·Di · | · | Ta",  ts:"4/4", beats:[S(ta,_,_,_),S(_,_,di,_),S(_,_,_,_),S(ta,_,_,_)]},
+  {name:"3+3+2+3+3+2 in 16ths",   cat:"1-Measure Straight", disp:"Ta··mi··Di· × 2",           ts:"4/4", beats:[S(ta,_,_,mi),S(_,_,di,_),S(ta,_,_,mi),S(_,_,di,_)]},
+  {name:"Gallop x4",               cat:"1-Measure Straight", disp:"Ta · · mi × 4",             ts:"4/4", beats:[S(ta,_,_,mi),S(ta,_,_,mi),S(ta,_,_,mi),S(ta,_,_,mi)]},
+  {name:"Quarter + 8th-8th Groove",cat:"1-Measure Straight", disp:"Ta | Ta-Di | Ta | Ta-Di",   ts:"4/4", beats:[S(ta,_,_,_),S(ta,_,di,_),S(ta,_,_,_),S(ta,_,di,_)]},
+  {name:"8th-8th + Quarter Groove",cat:"1-Measure Straight", disp:"Ta-Di-Ta | Ta-Di-Ta",       ts:"4/4", beats:[S(ta,_,di,_),S(ta,_,_,_),S(ta,_,di,_),S(ta,_,_,_)]},
+  {name:"Anticipated Beat 3",      cat:"1-Measure Straight", disp:"Ta·Di · ka · · Ta · · Ta",  ts:"4/4", beats:[S(ta,_,di,_),S(_,ka,_,_),S(ta,_,_,_),S(ta,_,_,_)]},
+  {name:"And of 4 Push",           cat:"1-Measure Straight", disp:"8ths × 3 | Ta · Di-mi",     ts:"4/4", beats:[S(ta,_,di,_),S(ta,_,di,_),S(ta,_,di,_),S(ta,_,di,mi)]},
+  {name:"Full Ska Bar",            cat:"1-Measure Straight", disp:"· ka · · × 4",              ts:"4/4", beats:[S(_,ka,_,_),S(_,ka,_,_),S(_,ka,_,_),S(_,ka,_,_)]},
+  {name:"Funk 16th Groove",        cat:"1-Measure Straight", disp:"Ta·Di-mi-Ta × 2",           ts:"4/4", beats:[S(ta,_,di,mi),S(ta,_,_,_),S(ta,_,di,mi),S(ta,_,_,_)]},
+  {name:"Rumba Clave 3-side",      cat:"1-Measure Straight", disp:"Ta · · · | ·Di | · | ··Di·",ts:"4/4", beats:[S(ta,_,_,_),S(_,_,di,_),S(_,_,_,_),S(_,_,di,_)]},
+  {name:"Bossa Nova",              cat:"1-Measure Straight", disp:"Ta·Di · · · Ta·Di · Ta",    ts:"4/4", beats:[S(ta,_,di,_),S(_,_,_,_),S(ta,_,di,_),S(ta,_,_,_)]},
+  {name:"Dotted Quarter Loop",     cat:"1-Measure Straight", disp:"Ta (hold) Di | Ta (hold) Di",ts:"4/4",beats:[S(ta,_,_,_),S(_,_,di,_),S(ta,_,_,_),S(_,_,di,_)]},
+  {name:"Post-Punk Motorik",       cat:"1-Measure Straight", disp:"Ta-Di × 4 (snare B3 only)", ts:"4/4", beats:[S(ta,_,di,_),S(ta,_,di,_),S(ta,_,di,_),S(ta,_,di,_)]},
+  {name:"Floating Quarters",       cat:"1-Measure Straight", disp:"Ta · · Di | Ta · · Di",     ts:"4/4", beats:[S(ta,_,_,_),S(_,_,di,_),S(ta,_,_,_),S(_,_,di,_)]},
+
+  // ── 2-MEASURE STRAIGHT ────────────────────────────────────────────────
+  {name:"Son Clave 3-2",           cat:"2-Measure Straight", disp:"Tresillo | 2-side",          ts:"4/4",
+   beats:[S(ta,_,_,_),S(_,_,di,_),S(_,_,_,_),S(ta,_,_,_),S(_,_,_,_),S(_,_,_,_),S(ta,_,_,_),S(_,_,di,_)]},
+  {name:"Son Clave 2-3",           cat:"2-Measure Straight", disp:"2-side | Tresillo",          ts:"4/4",
+   beats:[S(_,_,_,_),S(_,_,_,_),S(ta,_,_,_),S(_,_,di,_),S(ta,_,_,_),S(_,_,di,_),S(_,_,_,_),S(ta,_,_,_)]},
+  {name:"Rumba Clave 3-2",         cat:"2-Measure Straight", disp:"Shifted tresillo | 2-side",  ts:"4/4",
+   beats:[S(ta,_,_,_),S(_,_,di,_),S(_,_,_,_),S(_,_,di,_),S(_,_,_,_),S(_,_,_,_),S(ta,_,_,_),S(_,_,di,_)]},
+  {name:"2-Bar Pop Phrase",        cat:"2-Measure Straight", disp:"8ths resolving | 8ths + push",ts:"4/4",
+   beats:[S(ta,_,di,_),S(ta,_,di,_),S(ta,_,di,_),S(ta,_,_,_),S(ta,_,di,_),S(ta,_,di,_),S(ta,_,di,_),S(ta,_,di,mi)]},
+  {name:"2-Bar R&B Phrase",        cat:"2-Measure Straight", disp:"Push bar | Resolving bar",    ts:"4/4",
+   beats:[S(ta,_,_,_),S(ta,_,di,_),S(ta,_,_,_),S(ta,_,di,mi),S(ta,_,di,_),S(ta,_,_,_),S(ta,_,di,_),S(ta,_,_,_)]},
+  {name:"Extended Tresillo",       cat:"2-Measure Straight", disp:"Tresillo | Tresillo no 3rd", ts:"4/4",
+   beats:[S(ta,_,_,_),S(_,_,di,_),S(_,_,_,_),S(ta,_,_,_),S(ta,_,_,_),S(_,_,di,_),S(_,_,_,_),S(_,_,_,_)]},
+  {name:"Blue Monday Stutter",     cat:"2-Measure Straight", disp:"Ta-ka · mi · ka · · (×2)",   ts:"4/4",
+   beats:[S(ta,ka,_,mi),S(_,ka,_,_),S(ta,ka,_,mi),S(ta,_,_,_),S(ta,ka,_,mi),S(_,ka,_,_),S(ta,ka,_,mi),S(ta,_,_,_)]},
+
+  // ── 1-BEAT TRIPLET ────────────────────────────────────────────────────
+  {name:"Full Triplet",            cat:"1-Beat Triplet",     disp:"Ta-ki-da",     ts:"4/4", beats:[T(ta,ki,da)]},
+  {name:"Shuffle Beat",            cat:"1-Beat Triplet",     disp:"Ta · da",      ts:"4/4", beats:[T(ta,_,da)]},
+  {name:"Triplet Downbeat Only",   cat:"1-Beat Triplet",     disp:"Ta · ·",       ts:"4/4", beats:[T(ta,_,_)]},
+  {name:"Triplet Middle + Up",     cat:"1-Beat Triplet",     disp:"· ki-da",      ts:"4/4", beats:[T(_,ki,da)]},
+  {name:"Triplet Upbeat Only",     cat:"1-Beat Triplet",     disp:"· · da",       ts:"4/4", beats:[T(_,_,da)]},
+  {name:"Triplet Down + Middle",   cat:"1-Beat Triplet",     disp:"Ta-ki ·",      ts:"4/4", beats:[T(ta,ki,_)]},
+
+  // ── 2-BEAT TRIPLET ────────────────────────────────────────────────────
+  {name:"Shuffle Classic",         cat:"2-Beat Triplet",     disp:"Ta·da Ta·da",  ts:"4/4", beats:[T(ta,_,da),T(ta,_,da)]},
+  {name:"Slow Blues Landing",      cat:"2-Beat Triplet",     disp:"Ta·da Ta",     ts:"4/4", beats:[T(ta,_,da),T(ta,_,_)]},
+  {name:"Jazz Swing Ride",         cat:"2-Beat Triplet",     disp:"Ta·DA Ta·DA",  ts:"4/4", beats:[T(ta,_,da),T(ta,_,da)]},
+  {name:"Two Spacious Quarters",   cat:"2-Beat Triplet",     disp:"Ta · · Ta · ·",ts:"4/4", beats:[T(ta,_,_),T(ta,_,_)]},
+  {name:"Offbeat Triplet Churn",   cat:"2-Beat Triplet",     disp:"· ki-da · ki-da",ts:"4/4",beats:[T(_,ki,da),T(_,ki,da)]},
+  {name:"Full Six Triplets",       cat:"2-Beat Triplet",     disp:"Ta-ki-da Ta-ki-da",ts:"4/4",beats:[T(ta,ki,da),T(ta,ki,da)]},
+  {name:"Triplet + Quarter Landing",cat:"2-Beat Triplet",    disp:"Ta · da  Ta",  ts:"4/4", beats:[T(ta,_,da),T(ta,_,_)]},
+
+  // ── 1-MEASURE TRIPLET ─────────────────────────────────────────────────
+  {name:"Full Shuffle Bar",        cat:"1-Measure Triplet",  disp:"Ta·da × 4",    ts:"4/4", beats:[T(ta,_,da),T(ta,_,da),T(ta,_,da),T(ta,_,da)]},
+  {name:"Gospel Shout Groove",     cat:"1-Measure Triplet",  disp:"Shuffle×2 | Ta-ki-da | Ta",ts:"4/4", beats:[T(ta,_,da),T(ta,_,da),T(ta,ki,da),T(ta,_,_)]},
+  {name:"12/8 Ballad Motown",      cat:"1-Measure Triplet",  disp:"Ta·da Ta | Ta·da Ta",ts:"4/4",beats:[T(ta,_,da),T(ta,_,_),T(ta,_,da),T(ta,_,_)]},
+  {name:"Quarter Note Triplet",    cat:"1-Measure Triplet",  disp:"3 evenly spaced over 4 beats",ts:"4/4",beats:[T(ta,_,_),T(_,_,da),T(_,_,_),T(ta,_,_)]},
+  {name:"Afrobeat Triplet Clave",  cat:"1-Measure Triplet",  disp:"Ta·da Ta | Ta·da Ta·da",ts:"4/4",beats:[T(ta,_,da),T(ta,_,_),T(ta,_,da),T(ta,_,da)]},
+  {name:"Slow Blues Measure",      cat:"1-Measure Triplet",  disp:"Shuffle × 3 | Ta",ts:"4/4", beats:[T(ta,_,da),T(ta,_,da),T(ta,_,da),T(ta,_,_)]},
+
+  // ── MIXED FEEL ────────────────────────────────────────────────────────
+  {name:"Swung 16ths",             cat:"Mixed Feel", disp:"16ths → Shuffle",      ts:"4/4", beats:[S(ta,ka,di,mi),S(ta,ka,di,mi),T(ta,_,da),T(ta,_,da)]},
+  {name:"Triplet Stumble into Straight",cat:"Mixed Feel",disp:"Ta·da | 16ths ×3", ts:"4/4", beats:[T(ta,_,da),S(ta,ka,di,mi),S(ta,ka,di,mi),S(ta,ka,di,mi)]},
+  {name:"Straight then Triplet Ending",cat:"Mixed Feel",disp:"8ths ×3 | Ta·da",   ts:"4/4", beats:[S(ta,_,di,_),S(ta,_,di,_),S(ta,_,di,_),T(ta,_,da)]},
+  {name:"Hemiola",                 cat:"Mixed Feel", disp:"3 over 4",             ts:"4/4", beats:[S(ta,_,_,_),S(_,_,di,_),S(_,_,_,_),S(ta,_,_,_)]},
+  {name:"Afrobeat Hybrid",         cat:"Mixed Feel", disp:"8th×2 | Shuffle×2",    ts:"4/4", beats:[S(ta,_,di,_),S(ta,_,di,_),T(ta,_,da),T(ta,_,da)]},
+  {name:"Trap Triplet Hi-Hat",     cat:"Mixed Feel", disp:"16ths × 4",            ts:"4/4", beats:[S(ta,ka,di,mi),S(ta,ka,di,mi),S(ta,ka,di,mi),S(ta,ka,di,mi)]},
+  {name:"Shuffle Pickup into Straight",cat:"Mixed Feel",disp:"· · da | 16ths ×3", ts:"4/4", beats:[T(_,_,da),S(ta,ka,di,mi),S(ta,ka,di,mi),S(ta,ka,di,mi)]},
+  {name:"Half-Measure Switch",     cat:"Mixed Feel", disp:"16th bar | Shuffle bar",ts:"4/4",
+   beats:[S(ta,ka,di,mi),S(ta,ka,di,mi),S(ta,ka,di,mi),S(ta,ka,di,mi),T(ta,_,da),T(ta,_,da),T(ta,_,da),T(ta,_,da)]},
+  {name:"Offbeat Landing",         cat:"Mixed Feel", disp:"· ka ×2 | · ki-da | · ka",ts:"4/4",beats:[S(_,ka,_,_),S(_,ka,_,_),T(_,ki,da),S(_,ka,_,_)]},
+
+  // ── ODD METER — 3/4 ───────────────────────────────────────────────────
+  {name:"Waltz Quarter Notes",     cat:"Odd Meter",  disp:"Ta | Ta | Ta",         ts:"3/4", beats:[S(ta,_,_,_),S(ta,_,_,_),S(ta,_,_,_)]},
+  {name:"Waltz 8th Notes",         cat:"Odd Meter",  disp:"Ta-Di × 3",            ts:"3/4", beats:[S(ta,_,di,_),S(ta,_,di,_),S(ta,_,di,_)]},
+  {name:"Waltz with 16th Run",     cat:"Odd Meter",  disp:"Ta | Ta | Ta-ka-Di-mi",ts:"3/4", beats:[S(ta,_,_,_),S(ta,_,_,_),S(ta,ka,di,mi)]},
+  {name:"Waltz Syncopated",        cat:"Odd Meter",  disp:"Ta·Di-mi | · ka | Ta", ts:"3/4", beats:[S(ta,_,di,mi),S(_,ka,_,_),S(ta,_,_,_)]},
+
+  // ── ODD METER — 5/4 ───────────────────────────────────────────────────
+  {name:"Five Four — Five Quarters",cat:"Odd Meter", disp:"Ta × 5",               ts:"5/4", beats:[S(ta,_,_,_),S(ta,_,_,_),S(ta,_,_,_),S(ta,_,_,_),S(ta,_,_,_)]},
+  {name:"Five Four — Three Plus Two",cat:"Odd Meter",disp:"[Ta-Di × 2 | Ta] + [Ta-Di | Ta]",ts:"5/4",beats:[S(ta,_,di,_),S(ta,_,di,_),S(ta,_,_,_),S(ta,_,di,_),S(ta,_,_,_)]},
+  {name:"Five Four — Two Plus Three",cat:"Odd Meter",disp:"[Ta-Di | Ta] + [Ta-Di × 2 | Ta]",ts:"5/4",beats:[S(ta,_,di,_),S(ta,_,_,_),S(ta,_,di,_),S(ta,_,di,_),S(ta,_,_,_)]},
+  {name:"Five Four Sparse",        cat:"Odd Meter",  disp:"Ta · · · Ta · · · · ·",ts:"5/4", beats:[S(ta,_,_,_),S(_,_,_,_),S(_,_,_,_),S(ta,_,_,_),S(_,_,_,_)]},
+  {name:"Five Four Syncopated",    cat:"Odd Meter",  disp:"Ta-ka·mi | Ta·Di | ·ka | Ta-Di | Ta",ts:"5/4",beats:[S(ta,ka,_,mi),S(ta,_,di,_),S(_,ka,_,_),S(ta,_,di,_),S(ta,_,_,_)]},
+
+  // ── ODD METER — 7/4 ───────────────────────────────────────────────────
+  {name:"Seven Four — Seven Quarters",cat:"Odd Meter",disp:"Ta × 7",              ts:"7/4", beats:[S(ta,_,_,_),S(ta,_,_,_),S(ta,_,_,_),S(ta,_,_,_),S(ta,_,_,_),S(ta,_,_,_),S(ta,_,_,_)]},
+  {name:"Seven Four — Four Plus Three",cat:"Odd Meter",disp:"[8ths × 4] + [8ths × 2 | Ta]",ts:"7/4",beats:[S(ta,_,di,_),S(ta,_,di,_),S(ta,_,di,_),S(ta,_,di,_),S(ta,_,di,_),S(ta,_,di,_),S(ta,_,_,_)]},
+  {name:"Seven Four — Three Plus Four",cat:"Odd Meter",disp:"[8ths × 2 | Ta] + [8ths × 4]",ts:"7/4",beats:[S(ta,_,di,_),S(ta,_,di,_),S(ta,_,_,_),S(ta,_,di,_),S(ta,_,di,_),S(ta,_,di,_),S(ta,_,di,_)]},
+  {name:"Seven Four — Two Plus Two Plus Three",cat:"Odd Meter",disp:"[Ta|Ta|Ta|Ta] + [8ths × 2 | Ta]",ts:"7/4",beats:[S(ta,_,_,_),S(ta,_,_,_),S(ta,_,_,_),S(ta,_,_,_),S(ta,_,di,_),S(ta,_,di,_),S(ta,_,_,_)]},
+  {name:"Seven Four Money Feel",   cat:"Odd Meter",  disp:"Ta·Di·Ta | Ta·Di-mi·ka·Ta",ts:"7/4",beats:[S(ta,_,di,_),S(ta,_,_,_),S(_,_,_,_),S(ta,_,di,mi),S(_,ka,_,_),S(_,_,_,_),S(ta,_,_,_)]},
+
+  // ── SONG SIGNATURES ───────────────────────────────────────────────────
+  // Coldplay
+  {name:"Viva La Vida",            cat:"Song Signatures", disp:"8ths → syncopated and-of-4 (2 bars)",ts:"4/4",
+   beats:[S(ta,_,di,_),S(ta,_,di,_),S(ta,_,di,_),S(_,_,di,_),S(_,_,di,_),S(_,_,di,_),S(ta,_,di,_),S(ta,_,_,_)]},
+  {name:"Clocks 3-3-2",            cat:"Song Signatures", disp:"Ta · · | · · Di | · · · | Ta · Di ·",ts:"4/4",
+   beats:[S(ta,_,_,_),S(_,_,di,_),S(_,_,_,_),S(ta,_,di,_)]},
+  // 4-bar piano groove: ta··mi | ··di | ··di | [ta / ··di / ··di / ta·di]
+  {name:"A Sky Full of Stars", cat:"Song Signatures", disp:"ta··mi | ··di | ··di | ta (×4 bars)", ts:"4/4",
+   beats:[
+     S(ta,_,_,mi),S(_,_,di,_),S(_,_,di,_),S(ta,_,_,_),   // M1
+     S(ta,_,_,mi),S(_,_,di,_),S(_,_,di,_),S(_,_,di,_),   // M2
+     S(ta,_,_,mi),S(_,_,di,_),S(_,_,di,_),S(_,_,di,_),   // M3
+     S(ta,_,_,mi),S(_,_,di,_),S(_,_,di,_),S(ta,_,di,_),  // M4
+   ]},
+  // Paradise — Intro (4 bars): ta | ··di·mi | ta | [varies]
+  {name:"Paradise — Intro", cat:"Song Signatures", disp:"ta | ··di·mi | ta | [varies] (4 bars)", ts:"4/4",
+   beats:[
+     S(ta,_,_,_),S(_,_,di,mi),S(ta,_,_,_),S(_,_,_,_),    // M1
+     S(ta,_,_,_),S(_,_,di,mi),S(ta,_,_,_),S(ta,_,_,_),   // M2
+     S(ta,_,_,_),S(_,_,di,mi),S(ta,_,_,_),S(_,_,_,_),    // M3
+     S(ta,_,_,_),S(_,_,di,mi),S(ta,_,_,_),S(ta,_,di,_),  // M4
+   ]},
+  // Paradise — Verse (2 bars): busier 8th/16th piano movement
+  {name:"Paradise — Verse", cat:"Song Signatures", disp:"ta·di | ta·ka·di | ··di | ta·di·mi (2 bars)", ts:"4/4",
+   beats:[
+     S(ta,_,di,_),S(ta,ka,di,_),S(_,_,di,_),S(ta,_,di,mi),  // M1
+     S(ta,_,di,_),S(ta,_,di,_), S(_,_,di,_),S(ta,_,di,mi),  // M2
+   ]},
+  // Depeche Mode
+  // Personal Jesus — 2-bar 12/8 groove (4 triplet beats per bar)
+  // M1: [ta··] [ta·da] [ta··] [ta·da]
+  // M2: [··da] [ta·da] [ta··] [ta·da]
+  {name:"Personal Jesus", cat:"Song Signatures", disp:"12/8: ta | ta·da | ta | ta·da (2 bars)", ts:"4/4",
+   beats:[
+     T(ta,_,_),T(ta,_,da),T(ta,_,_),T(ta,_,da),  // M1
+     T(_,_,da),T(ta,_,da),T(ta,_,_),T(ta,_,da),  // M2
+   ]},
+  // Enjoy the Silence — Intro (4 bars)
+  // M1/M2/M4: [ta···] [ta·di·] [taka·di·] [ta·di·]
+  // M3:       [ta···] [ta·di·mi] [ta·di·] [ta·di·]
+  {name:"Enjoy the Silence — Intro", cat:"Song Signatures", disp:"ta | ta·di | taka·di | ta·di (4 bars)", ts:"4/4",
+   beats:[
+     S(ta,_,_,_),S(ta,_,di,_),S(ta,ka,di,_),S(ta,_,di,_),  // M1
+     S(ta,_,_,_),S(ta,_,di,_),S(ta,ka,di,_),S(ta,_,di,_),  // M2
+     S(ta,_,_,_),S(ta,_,di,mi),S(ta,_,di,_),S(ta,_,di,_),  // M3
+     S(ta,_,_,_),S(ta,_,di,_),S(ta,ka,di,_),S(ta,_,di,_),  // M4
+   ]},
+  // Enjoy the Silence — Main hook
+  // M1: [ta···] [ta·di·] [··di·] [ta···]
+  {name:"Enjoy the Silence — Hook", cat:"Song Signatures", disp:"ta | ta·di | ··di | ta", ts:"4/4",
+   beats:[S(ta,_,_,_),S(ta,_,di,_),S(_,_,di,_),S(ta,_,_,_)]},
+  // New Order
+  {name:"True Faith",              cat:"Song Signatures", disp:"Ta·Di | ·ka-Di | Ta·Di | Ta",ts:"4/4",
+   beats:[S(ta,_,di,_),S(_,ka,di,_),S(ta,_,di,_),S(ta,_,_,_)]},
+  // The Smiths
+  {name:"This Charming Man",       cat:"Song Signatures", disp:"· Di ×3 | Ta · Di ·",     ts:"4/4",
+   beats:[S(_,_,di,_),S(_,_,di,_),S(_,_,di,_),S(ta,_,di,_)]},
+  // The Cure
+  {name:"Friday I'm in Love",      cat:"Song Signatures", disp:"8ths×2 | offbeats×2",     ts:"4/4",
+   beats:[S(ta,_,di,_),S(ta,_,di,_),S(_,_,di,_),S(_,_,di,_)]},
+  {name:"Lovesong",                cat:"Song Signatures", disp:"Ta | silence | Ta · · mi | silence",ts:"4/4",
+   beats:[S(ta,_,_,_),S(_,_,_,_),S(ta,_,_,mi),S(_,_,_,_)]},
+  // Tame Impala
+  {name:"The Less I Know the Better",cat:"Song Signatures",disp:"Ta-ka | ··Di-mi | Ta·ka | Ta",ts:"4/4",
+   beats:[S(ta,ka,_,_),S(_,_,di,mi),S(ta,_,ka,_),S(ta,_,_,_)]},
+  {name:"Let It Happen",           cat:"Song Signatures", disp:"8ths×2 → 16ths×2",        ts:"4/4",
+   beats:[S(ta,_,di,_),S(ta,_,di,_),S(ta,ka,di,mi),S(ta,ka,di,mi)]},
+  {name:"Feels Like We Only Go Backwards",cat:"Song Signatures",disp:"Ta-Di × 4 (steady, unhurried)",ts:"4/4",
+   beats:[S(ta,_,di,_),S(ta,_,di,_),S(ta,_,di,_),S(ta,_,di,_)]},
+  // The National
+  {name:"Bloodbuzz Ohio",          cat:"Song Signatures", disp:"Ta-ka | Ta··mi | ··Di | Ta-ka",ts:"4/4",
+   beats:[S(ta,ka,_,_),S(ta,_,_,mi),S(_,_,di,_),S(ta,ka,_,_)]},
+  {name:"Fake Empire",             cat:"Song Signatures", disp:"Ta | Ta | Ta · Di ·",     ts:"3/4",
+   beats:[S(ta,_,_,_),S(ta,_,_,_),S(ta,_,di,_)]},
+  // Bon Iver
+  {name:"Holocene",                cat:"Song Signatures", disp:"8ths×3 | · ka-Di ·",      ts:"4/4",
+   beats:[S(ta,_,di,_),S(ta,_,di,_),S(ta,_,di,_),S(_,ka,di,_)]},
+  {name:"Skinny Love",             cat:"Song Signatures", disp:"16ths | Ta-ka | 16ths | Ta",ts:"4/4",
+   beats:[S(ta,ka,di,mi),S(ta,ka,_,_),S(ta,ka,di,mi),S(ta,_,_,_)]},
+  // Lord Huron
+  {name:"The Night We Met",        cat:"Song Signatures", disp:"· · Di · | silence | Ta | silence",ts:"4/4",
+   beats:[S(_,_,di,_),S(_,_,_,_),S(ta,_,_,_),S(_,_,_,_)]},
+  {name:"Ends of the Earth",       cat:"Song Signatures", disp:"8ths×2 | Ta-ka-Di | Ta·Di",ts:"4/4",
+   beats:[S(ta,_,di,_),S(ta,_,di,_),S(ta,ka,di,_),S(ta,_,di,_)]},
+  // Radiohead
+  {name:"Karma Police",            cat:"Song Signatures", disp:"Ta | Ta | Ta | Ta (spacious quarters)",ts:"4/4",
+   beats:[S(ta,_,_,_),S(ta,_,_,_),S(ta,_,_,_),S(ta,_,_,_)]},
+  {name:"Creep",                   cat:"Song Signatures", disp:"Ta | Ta | Ta | · · Di · (held breath)",ts:"4/4",
+   beats:[S(ta,_,_,_),S(ta,_,_,_),S(ta,_,_,_),S(_,_,di,_)]},
+  // Wilco
+  {name:"Jesus Etc",               cat:"Song Signatures", disp:"Ta | Ta·Di | Ta | Ta·Di",  ts:"4/4",
+   beats:[S(ta,_,_,_),S(ta,_,di,_),S(ta,_,_,_),S(ta,_,di,_)]},
+  // The Beatles
+  {name:"Come Together",           cat:"Song Signatures", disp:"Ta | · · Di · | Ta | · · Di ·",ts:"4/4",
+   beats:[S(ta,_,_,_),S(_,_,di,_),S(ta,_,_,_),S(_,_,di,_)]},
+  {name:"Let It Be",               cat:"Song Signatures", disp:"Ta | Ta | Ta · Di · | Ta", ts:"4/4",
+   beats:[S(ta,_,_,_),S(ta,_,_,_),S(ta,_,di,_),S(ta,_,_,_)]},
+  {name:"Eleanor Rigby",           cat:"Song Signatures", disp:"Ta | Ta | Ta | Ta (relentless)",ts:"4/4",
+   beats:[S(ta,_,_,_),S(ta,_,_,_),S(ta,_,_,_),S(ta,_,_,_)]},
+  {name:"Blackbird",               cat:"Song Signatures", disp:"offbeat 8ths (4/4+3/4 phrase)",ts:"4/4",
+   beats:[S(_,_,di,_),S(_,_,di,_),S(_,_,di,_),S(_,_,di,_),S(_,_,di,_),S(_,_,di,_),S(_,_,di,_)]},
+  {name:"Norwegian Wood",          cat:"Song Signatures", disp:"Ta | Ta | Ta · Di-mi",     ts:"3/4",
+   beats:[S(ta,_,_,_),S(ta,_,_,_),S(ta,_,di,mi)]},
+  {name:"A Day in the Life",       cat:"Song Signatures", disp:"3+3+3+3+2+2 hemiola run",  ts:"4/4",
+   beats:[S(ta,_,_,mi),S(_,_,di,_),S(_,_,di,_),S(ta,_,di,_)]},
+  // Led Zeppelin
+  {name:"Immigrant Song",          cat:"Song Signatures", disp:"Ta-Di × 4 (relentless fury)", ts:"4/4",
+   beats:[S(ta,_,di,_),S(ta,_,di,_),S(ta,_,di,_),S(ta,_,di,_)]},
+  {name:"When the Levee Breaks",   cat:"Song Signatures", disp:"Ta | silence | SNARE | Ta (half-time)",ts:"4/4",
+   beats:[S(ta,_,_,_),S(_,_,_,_),S(ta,_,_,_),S(ta,_,_,_)]},
+  {name:"Black Dog",               cat:"Song Signatures", disp:"16th burst | arrival | return | hold",ts:"4/4",
+   beats:[S(ta,ka,di,mi),S(ta,_,_,_),S(ta,ka,_,_),S(ta,_,_,_)]},
+  {name:"Kashmir",                 cat:"Song Signatures", disp:"3-over-4 hemiola (2 bars)", ts:"4/4",
+   beats:[S(ta,_,_,_),S(_,_,_,_),S(_,_,_,_),S(ta,_,_,_),S(_,_,_,_),S(_,_,_,_),S(ta,_,_,_),S(_,_,_,_)]},
+  {name:"Whole Lotta Love",        cat:"Song Signatures", disp:"Ta-ka | · · Di · | Ta | silence",ts:"4/4",
+   beats:[S(ta,ka,_,_),S(_,_,di,_),S(ta,_,_,_),S(_,_,_,_)]},
+  {name:"Fool in the Rain",        cat:"Song Signatures", disp:"Ta·da × 4 (half-shuffle)",  ts:"4/4",
+   beats:[T(ta,_,da),T(ta,_,da),T(ta,_,da),T(ta,_,da)]},
+  // ABBA
+  {name:"Dancing Queen",           cat:"Song Signatures", disp:"Ta-ka | 8ths × 3 (arpeggio drive)",ts:"4/4",
+   beats:[S(ta,ka,_,_),S(ta,_,di,_),S(ta,_,di,_),S(ta,_,di,_)]},
+  {name:"Waterloo",                cat:"Song Signatures", disp:"Ta-Di × 4 (euphoric stomp)",ts:"4/4",
+   beats:[S(ta,_,di,_),S(ta,_,di,_),S(ta,_,di,_),S(ta,_,di,_)]},
+  {name:"The Winner Takes It All", cat:"Song Signatures", disp:"Ta | Ta | Ta | Ta · Di · (bitter lean)",ts:"4/4",
+   beats:[S(ta,_,_,_),S(ta,_,_,_),S(ta,_,_,_),S(ta,_,di,_)]},
+  {name:"Fernando",                cat:"Song Signatures", disp:"Ta | · · ta · | Ta | · · ta · (sway)",ts:"4/4",
+   beats:[S(ta,_,_,_),S(_,_,ta,_),S(ta,_,_,_),S(_,_,ta,_)]},
+  // Eagles
+  {name:"Hotel California",        cat:"Song Signatures", disp:"Ta-Di × 4 (rolling arpeggio)",ts:"4/4",
+   beats:[S(ta,_,di,_),S(ta,_,di,_),S(ta,_,di,_),S(ta,_,di,_)]},
+  {name:"Life in the Fast Lane",   cat:"Song Signatures", disp:"Ta-ka-Di-mi × 4 (grinding)", ts:"4/4",
+   beats:[S(ta,ka,di,mi),S(ta,ka,di,mi),S(ta,ka,di,mi),S(ta,ka,di,mi)]},
+  {name:"Desperado",               cat:"Song Signatures", disp:"Ta | silence | Ta | silence (lonely)",ts:"4/4",
+   beats:[S(ta,_,_,_),S(_,_,_,_),S(ta,_,_,_),S(_,_,_,_)]},
+  {name:"Take It Easy",            cat:"Song Signatures", disp:"Ta×2 | Ta·Di | Ta-Di×3 (2-bar)",ts:"4/4",
+   beats:[S(ta,_,_,_),S(ta,_,_,_),S(ta,_,di,_),S(ta,_,di,_),S(ta,_,di,_),S(ta,_,di,_)]},
+  // Nick Drake
+  {name:"Pink Moon",               cat:"Song Signatures", disp:"Ta | silence | · · Di · | silence",ts:"4/4",
+   beats:[S(ta,_,_,_),S(_,_,_,_),S(_,_,di,_),S(_,_,_,_)]},
+  {name:"River Man",               cat:"Song Signatures", disp:"Ta | Ta | Ta | Ta · Di · | Ta",ts:"5/4",
+   beats:[S(ta,_,_,_),S(ta,_,_,_),S(ta,_,_,_),S(ta,_,di,_),S(ta,_,_,_)]},
+];
+
+// ══════════════════════════════════════════════════════════════════════════════
+// AUDIO ENGINE
+// ══════════════════════════════════════════════════════════════════════════════
+let audioCtx = null;
+
+function ensureAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+// Sound parameters per syllable
+const SOUND_PARAMS = {
+  ta: { freq:220, amp:0.65, decay:0.14, type:'sine' },
+  ka: { freq:680, amp:0.50, decay:0.07, type:'sine' },
+  di: { freq:370, amp:0.58, decay:0.10, type:'sine' },
+  mi: { freq:290, amp:0.38, decay:0.07, type:'sine' },
+  ki: { freq:620, amp:0.50, decay:0.07, type:'sine' },
+  da: { freq:240, amp:0.58, decay:0.12, type:'sine' },
+};
+
+function playClick(ctx, time, force) {
+  // force=true for count-in clicks (always plays regardless of toggle)
+  if (!force && !document.getElementById('metronomeCheck')?.checked) return;
+  const osc  = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.frequency.value = 1100;
+  osc.type = 'square';
+  gain.gain.setValueAtTime(0.22, time);
+  gain.gain.exponentialRampToValueAtTime(0.001, time + 0.025);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(time);
+  osc.stop(time + 0.03);
+}
+
+function playSyllable(ctx, syllable, time) {
+  const p = SOUND_PARAMS[syllable];
+  if (!p) return;
+  const osc  = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = p.type;
+  osc.frequency.setValueAtTime(p.freq, time);
+  // slight frequency glide for expressiveness
+  osc.frequency.exponentialRampToValueAtTime(p.freq * 0.85, time + p.decay);
+  gain.gain.setValueAtTime(0.001, time);
+  gain.gain.linearRampToValueAtTime(p.amp, time + 0.004);
+  gain.gain.exponentialRampToValueAtTime(0.001, time + p.decay);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(time);
+  osc.stop(time + p.decay + 0.01);
+}
+
+// ── SCHEDULER ─────────────────────────────────────────────────────────────
+const LOOKAHEAD  = 0.1;   // seconds to look ahead
+const SCHED_INT  = 25;    // ms between scheduler runs
+
+let schedulerTimer  = null;
+let patternEvents   = [];  // flat list of slot events for one loop
+let patternDuration = 0;   // total seconds for one loop
+let nextEventTime   = 0;   // audioCtx time of next event to schedule
+let nextEventIdx    = 0;   // index into patternEvents
+let playStartTime   = 0;   // audioCtx time playback began (after count-in)
+let isPlaying       = false;
+let loopCount       = 0;
+
+// Visual sync
+let visualQueue     = [];  // [{audioTime, globalSlotIdx, beatIdx}]
+let currentVisSlot  = -1;
+let rafId           = null;
+
+// Count-in state
+let countInDuration = 0;
+let inCountIn       = false;
+
+// ── FLATTEN PATTERN ───────────────────────────────────────────────────────
+function flattenPattern(pattern, bpm) {
+  const beatDur = 60.0 / bpm;
+  const events  = [];
+  let t = 0;
+  let gsi = 0; // global slot index
+
+  pattern.beats.forEach((beat, beatIdx) => {
+    const isTrip = beat.type === 'T';
+    const nSlots = isTrip ? 3 : 4;
+    const slotDur = beatDur / nSlots;
+
+    beat.slots.forEach((syllable, slotIdx) => {
+      events.push({
+        time: t,
+        beatIdx,
+        slotIdx,
+        globalSlotIdx: gsi++,
+        syllable,
+        isDownbeat: slotIdx === 0,
+        slotDur,
+        nSlots,
+        isTrip,
+      });
+      t += slotDur;
+    });
+  });
+
+  return { events, totalDuration: t };
+}
+
+// ── BUILD COUNT-IN EVENTS ─────────────────────────────────────────────────
+function buildCountIn(pattern, bpm) {
+  const beatDur = 60.0 / bpm;
+  const ts      = parseInt(pattern.ts); // numerator
+  const events  = [];
+  for (let i = 0; i < ts; i++) {
+    events.push({ time: i * beatDur, isClick: true, slotDur: beatDur });
+  }
+  return { events, totalDuration: ts * beatDur };
+}
+
+// ── SCHEDULER LOOP ────────────────────────────────────────────────────────
+function scheduler() {
+  const ctx = audioCtx;
+  if (!ctx || !isPlaying) return;
+
+  // Schedule count-in clicks
+  if (inCountIn) {
+    // Count-in is already scheduled in start(); no further scheduling needed
+    // We'll just wait for it to finish
+  }
+
+  const now = ctx.currentTime;
+  while (nextEventTime < now + LOOKAHEAD) {
+    const ev = patternEvents[nextEventIdx];
+
+    // Schedule audio
+    if (ev.isDownbeat) playClick(ctx, nextEventTime, false);
+    if (ev.syllable)   playSyllable(ctx, ev.syllable, nextEventTime);
+
+    // Push to visual queue
+    visualQueue.push({ audioTime: nextEventTime, globalSlotIdx: ev.globalSlotIdx, beatIdx: ev.beatIdx });
+
+    // Advance
+    nextEventTime += ev.slotDur;
+    nextEventIdx++;
+
+    // Loop
+    if (nextEventIdx >= patternEvents.length) {
+      nextEventIdx = 0;
+      loopCount++;
+      updateLoopCounter();
+    }
+  }
+
+  schedulerTimer = setTimeout(scheduler, SCHED_INT);
+}
+
+// ── VISUAL LOOP ───────────────────────────────────────────────────────────
+function visualLoop() {
+  if (!isPlaying) return;
+
+  const now = audioCtx ? audioCtx.currentTime : 0;
+
+  // Process visual queue
+  let newSlot = currentVisSlot;
+  while (visualQueue.length > 0 && visualQueue[0].audioTime <= now) {
+    const ev = visualQueue.shift();
+    newSlot = ev.globalSlotIdx;
+  }
+
+  if (newSlot !== currentVisSlot) {
+    updateActiveCell(newSlot);
+    currentVisSlot = newSlot;
+  }
+
+  rafId = requestAnimationFrame(visualLoop);
+}
+
+// ── DOM CELL MANAGEMENT ───────────────────────────────────────────────────
+function updateActiveCell(globalSlotIdx) {
+  // Remove .active from previously active cell
+  document.querySelectorAll('.slot-cell.active').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.beat-num.beat-active').forEach(el => el.classList.remove('beat-active'));
+
+  if (globalSlotIdx < 0) return;
+
+  const cell = document.querySelector(`.slot-cell[data-gsi="${globalSlotIdx}"]`);
+  if (cell) {
+    cell.classList.add('active');
+    // Activate beat number
+    const beatIdx = cell.dataset.beatIdx;
+    const beatNum = document.querySelector(`.beat-num[data-beat="${beatIdx}"]`);
+    if (beatNum) beatNum.classList.add('beat-active');
+    // Scroll into view on mobile if needed
+    cell.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+  }
+}
+
+function updateLoopCounter() {
+  const el = document.getElementById('loopNum');
+  if (el) el.textContent = loopCount;
+}
+
+// ── START / STOP ──────────────────────────────────────────────────────────
+function startPlayback(pattern, bpm, doCountIn) {
+  const ctx = ensureAudioCtx();
+  stopPlayback(); // clear any prior state
+
+  const flat = flattenPattern(pattern, bpm);
+  patternEvents   = flat.events;
+  patternDuration = flat.totalDuration;
+  nextEventIdx    = 0;
+  loopCount       = 0;
+  currentVisSlot  = -1;
+  visualQueue     = [];
+
+  let startDelay = 0.05; // small buffer before first sound
+
+  if (doCountIn) {
+    const ci = buildCountIn(pattern, bpm);
+    const ciStart = ctx.currentTime + startDelay;
+    // Schedule count-in clicks immediately
+    ci.events.forEach(ev => {
+      playClick(ctx, ciStart + ev.time, true); // count-in always audible
+    });
+    startDelay += ci.totalDuration;
+    inCountIn = true;
+    setTimeout(() => { inCountIn = false; }, ci.totalDuration * 1000 + 50);
+  }
+
+  nextEventTime = ctx.currentTime + startDelay;
+  isPlaying     = true;
+  playStartTime = nextEventTime;
+
+  scheduler();
+  rafId = requestAnimationFrame(visualLoop);
+
+  // UI updates
+  const playBtn   = document.getElementById('playBtn');
+  const playIcon  = document.getElementById('playIcon');
+  const playLabel = document.getElementById('playLabel');
+  const loopCtr   = document.getElementById('loopCounter');
+  if (playBtn)   { playBtn.classList.add('playing'); }
+  if (playIcon)  { playIcon.textContent = '■'; }
+  if (playLabel) { playLabel.textContent = 'STOP'; }
+  if (loopCtr)   { loopCtr.style.display = 'flex'; }
+  updateLoopCounter();
+}
+
+function stopPlayback() {
+  isPlaying = false;
+
+  clearTimeout(schedulerTimer);
+  schedulerTimer = null;
+
+  if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+
+  visualQueue    = [];
+  currentVisSlot = -1;
+
+  // Clear highlights
+  document.querySelectorAll('.slot-cell.active').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.beat-num.beat-active').forEach(el => el.classList.remove('beat-active'));
+
+  // UI updates
+  const playBtn   = document.getElementById('playBtn');
+  const playIcon  = document.getElementById('playIcon');
+  const playLabel = document.getElementById('playLabel');
+  const loopCtr   = document.getElementById('loopCounter');
+  if (playBtn)   { playBtn.classList.remove('playing'); }
+  if (playIcon)  { playIcon.textContent = '▶'; }
+  if (playLabel) { playLabel.textContent = 'PLAY'; }
+  if (loopCtr)   { loopCtr.style.display = 'none'; }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// UI STATE
+// ══════════════════════════════════════════════════════════════════════════════
+let selectedPattern = null;
+let currentBPM      = 80;
+let searchQuery     = '';
+let activeCategory  = 'All';
+
+// ── CATEGORIES ────────────────────────────────────────────────────────────
+function getCategories() {
+  const seen = new Set(['All']);
+  PATTERNS.forEach(p => seen.add(p.cat));
+  return [...seen];
+}
+
+// ── FILTERED PATTERNS ─────────────────────────────────────────────────────
+function getFiltered() {
+  const q = searchQuery.toLowerCase().trim();
+  return PATTERNS.filter(p => {
+    const catMatch = activeCategory === 'All' || p.cat === activeCategory;
+    if (!catMatch) return false;
+    if (!q) return true;
+    return p.name.toLowerCase().includes(q) ||
+           p.cat.toLowerCase().includes(q) ||
+           p.disp.toLowerCase().includes(q);
+  });
+}
+
+// ── MEASURES PER PATTERN ──────────────────────────────────────────────────
+function beatsPerMeasure(ts) {
+  return parseInt(ts.split('/')[0]);
+}
+
+// ── RENDER PATTERN LIST ───────────────────────────────────────────────────
+function renderPatternList() {
+  const filtered = getFiltered();
+  const listEl   = document.getElementById('patternList');
+  const countEl  = document.getElementById('patternCount');
+
+  countEl.textContent = `${filtered.length} pattern${filtered.length !== 1 ? 's' : ''}`;
+
+  if (filtered.length === 0) {
+    listEl.innerHTML = '<div class="no-results">No patterns found</div>';
+    return;
+  }
+
+  listEl.innerHTML = filtered.map((p, i) => {
+    const idx     = PATTERNS.indexOf(p);
+    const isSelc  = selectedPattern === p;
+    const nBeats  = p.beats.length;
+    return `
+      <div class="pattern-item${isSelc ? ' selected' : ''}" data-idx="${idx}" role="button" tabindex="0">
+        <div class="pattern-item-name">${p.name}</div>
+        <div class="pattern-item-meta">
+          <span class="p-cat">${p.cat}</span>
+          <span class="p-ts">${p.ts}</span>
+          <span class="p-hits">${nBeats} beat${nBeats !== 1 ? 's' : ''}</span>
+        </div>
+      </div>`;
+  }).join('');
+
+  // Scroll selected item into view
+  const selEl = listEl.querySelector('.selected');
+  if (selEl) selEl.scrollIntoView({ block: 'nearest' });
+}
+
+// ── RENDER CATEGORY FILTERS ───────────────────────────────────────────────
+function renderCategoryFilters() {
+  const cats   = getCategories();
+  const ctnr   = document.getElementById('catFilters');
+  ctnr.innerHTML = cats.map(c =>
+    `<button class="cat-btn${activeCategory === c ? ' active' : ''}" data-cat="${c}">${c}</button>`
+  ).join('');
+}
+
+// ── RENDER GRID ───────────────────────────────────────────────────────────
+function renderGrid(pattern) {
+  const grid = document.getElementById('rhythmGrid');
+  if (!pattern) { grid.innerHTML = ''; return; }
+
+  const bpm_per_measure = beatsPerMeasure(pattern.ts);
+  const totalBeats      = pattern.beats.length;
+  const nMeasures       = Math.ceil(totalBeats / bpm_per_measure);
+
+  let gsi       = 0; // global slot index
+  let beatGlobal = 0;
+  let html      = '';
+
+  for (let m = 0; m < nMeasures; m++) {
+    const mStart = m * bpm_per_measure;
+    const mEnd   = Math.min(mStart + bpm_per_measure, totalBeats);
+    const beatsInThisMeasure = mEnd - mStart;
+
+    html += `<div class="measure-row">`;
+    if (nMeasures > 1) {
+      html += `<div class="measure-label">Measure ${m + 1}</div>`;
+    }
+    html += `<div class="beats-row">`;
+
+    for (let b = 0; b < beatsInThisMeasure; b++) {
+      const beatIdx  = mStart + b;
+      const beat     = pattern.beats[beatIdx];
+      const isTrip   = beat.type === 'T';
+      const nSlots   = isTrip ? 3 : 4;
+      const beatNum  = beatGlobal + 1;
+
+      html += `<div class="beat-group">`;
+      html += `<div class="beat-num" data-beat="${beatIdx}">${beatNum}</div>`;
+      html += `<div class="slots-row">`;
+
+      beat.slots.forEach((syl, si) => {
+        const hasSyl  = syl !== null;
+        const classes = [
+          'slot-cell',
+          hasSyl ? 'has-syllable' : '',
+          isTrip ? 'triplet' : '',
+        ].filter(Boolean).join(' ');
+
+        const display = syl ? syl : '·';
+
+        html += `<div class="${classes}" data-gsi="${gsi}" data-beat-idx="${beatIdx}" data-syl="${syl||''}"
+                  title="${syl || 'rest'}">${display}</div>`;
+        gsi++;
+      });
+
+      html += `</div>`; // slots-row
+      html += `</div>`; // beat-group
+
+      // Add visual separator between beats (not after the last one in the measure)
+      if (b < beatsInThisMeasure - 1) {
+        html += `<div class="beat-sep"></div>`;
+      }
+
+      beatGlobal++;
+    }
+
+    html += `</div>`; // beats-row
+    html += `</div>`; // measure-row
+  }
+
+  grid.innerHTML = html;
+}
+
+// ── SELECT PATTERN ────────────────────────────────────────────────────────
+function selectPattern(pattern) {
+  if (isPlaying) stopPlayback();
+
+  selectedPattern = pattern;
+
+  // Update info section
+  const emptyState  = document.getElementById('emptyState');
+  const selectedDiv = document.getElementById('selectedInfo');
+  const nameEl      = document.getElementById('selectedName');
+  const metaEl      = document.getElementById('selectedMeta');
+  const dispEl      = document.getElementById('selectedDisplay');
+
+  emptyState.style.display  = 'none';
+  selectedDiv.style.display = 'block';
+  nameEl.textContent        = pattern.name;
+  metaEl.innerHTML          = `
+    <span class="badge badge-cat">${pattern.cat}</span>
+    <span class="badge badge-ts">${pattern.ts}</span>`;
+  dispEl.textContent = pattern.disp;
+
+  // Show controls + transport + grid
+  document.getElementById('controlsRow').style.display  = 'flex';
+  document.getElementById('transportRow').style.display = 'flex';
+  document.getElementById('gridSection').style.display  = 'block';
+
+  renderGrid(pattern);
+  renderPatternList(); // update selected state in list
+
+  // Close sidebar on mobile
+  if (window.innerWidth < 768) closeSidebar();
+}
+
+// ── TEMPO ─────────────────────────────────────────────────────────────────
+function setTempo(bpm) {
+  bpm = Math.max(40, Math.min(220, Math.round(bpm)));
+  currentBPM = bpm;
+
+  const slider = document.getElementById('tempoSlider');
+  const numEl  = document.getElementById('tempoNum');
+  if (slider) slider.value = bpm;
+  if (numEl)  numEl.value  = bpm;
+
+  // Update preset button highlight
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.classList.toggle('active', +btn.dataset.bpm === bpm);
+  });
+
+  // If playing, restart with new tempo
+  if (isPlaying && selectedPattern) {
+    const countIn = document.getElementById('countInCheck')?.checked;
+    startPlayback(selectedPattern, currentBPM, countIn);
+  }
+}
+
+// ── SIDEBAR (mobile) ──────────────────────────────────────────────────────
+function openSidebar() {
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('overlay').classList.add('visible');
+  document.body.style.overflow = 'hidden';
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('visible');
+  document.body.style.overflow = '';
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// EVENT BINDING
+// ══════════════════════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+
+  // Initial render
+  renderCategoryFilters();
+  renderPatternList();
+
+  // ── Pattern list click ─────────────────────────────────────────────────
+  document.getElementById('patternList').addEventListener('click', e => {
+    const item = e.target.closest('.pattern-item');
+    if (!item) return;
+    const idx = +item.dataset.idx;
+    selectPattern(PATTERNS[idx]);
+  });
+
+  document.getElementById('patternList').addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      const item = e.target.closest('.pattern-item');
+      if (item) { e.preventDefault(); item.click(); }
+    }
+  });
+
+  // ── Search ────────────────────────────────────────────────────────────
+  document.getElementById('searchInput').addEventListener('input', e => {
+    searchQuery = e.target.value;
+    renderPatternList();
+  });
+
+  // ── Category filters ──────────────────────────────────────────────────
+  document.getElementById('catFilters').addEventListener('click', e => {
+    const btn = e.target.closest('.cat-btn');
+    if (!btn) return;
+    activeCategory = btn.dataset.cat;
+    renderCategoryFilters();
+    renderPatternList();
+  });
+
+  // ── Tempo slider ──────────────────────────────────────────────────────
+  document.getElementById('tempoSlider').addEventListener('input', e => {
+    setTempo(+e.target.value);
+  });
+
+  document.getElementById('tempoNum').addEventListener('change', e => {
+    setTempo(+e.target.value);
+  });
+  document.getElementById('tempoNum').addEventListener('keydown', e => {
+    if (e.key === 'Enter') setTempo(+e.target.value);
+  });
+
+  // ── Preset buttons ────────────────────────────────────────────────────
+  document.getElementById('presetBtns').addEventListener('click', e => {
+    const btn = e.target.closest('.preset-btn');
+    if (!btn) return;
+    setTempo(+btn.dataset.bpm);
+  });
+
+  // ── Play / Stop ───────────────────────────────────────────────────────
+  document.getElementById('playBtn').addEventListener('click', () => {
+    if (!selectedPattern) return;
+    if (isPlaying) {
+      stopPlayback();
+    } else {
+      const countIn = document.getElementById('countInCheck').checked;
+      startPlayback(selectedPattern, currentBPM, countIn);
+    }
+  });
+
+  // ── Mobile sidebar ────────────────────────────────────────────────────
+  document.getElementById('burgerBtn').addEventListener('click', openSidebar);
+  document.getElementById('overlay').addEventListener('click', closeSidebar);
+
+  // ── Keyboard shortcuts ────────────────────────────────────────────────
+  document.addEventListener('keydown', e => {
+    // Space bar = play/stop (when not focused on input)
+    if (e.code === 'Space' && document.activeElement.tagName !== 'INPUT') {
+      e.preventDefault();
+      document.getElementById('playBtn').click();
+    }
+  });
+
+  // ── Init tempo display ────────────────────────────────────────────────
+  setTempo(80);
+});
+</script>
+</body>
+</html>
