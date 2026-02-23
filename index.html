@@ -1130,9 +1130,9 @@ html, body {
 
       <!-- Ad Hoc Section -->
       <div class="grid-section" id="adHocSection" style="display:none">
-        <div class="adhoc-grid-header">
-          <div class="adhoc-grid-title">Ad Hoc Rhythm Grid</div>
-          <div class="adhoc-beat-count" id="adhocBeatCount"></div>
+        <div class="grid-label">
+          Rhythm Grid
+          <span class="adhoc-beat-count" id="adhocBeatCount" style="margin-left:10px"></span>
         </div>
         <div class="grid-outer">
           <div class="rhythm-grid" id="adHocGrid"></div>
@@ -2044,9 +2044,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ── Auto-open sidebar on mobile at load ──────────────────────────────
   if (window.innerWidth < 768) {
     openSidebar();
-    // On mobile, update empty state since sidebar opens over the content
-    const emptyMsg = document.getElementById('emptyStateText');
-    if (emptyMsg) emptyMsg.innerHTML = 'Choose a pattern from the list<br>or switch to <strong>Ad Hoc</strong> to build your own.';
+    // Sidebar opens on mobile — content area is behind it, no message update needed
   }
 });
 
@@ -2193,29 +2191,54 @@ function setMode(mode) {
   if (isPlaying) stopPlayback();
   adHocMode = (mode === 'adhoc');
 
+  // Sidebar controls
   document.getElementById('libraryControls').style.display  = adHocMode ? 'none' : 'contents';
   document.getElementById('adhocControls').classList.toggle('visible', adHocMode);
   document.getElementById('modeLibraryBtn').classList.toggle('active', !adHocMode);
   document.getElementById('modeAdhocBtn').classList.toggle('active', adHocMode);
 
-  document.getElementById('patternInfo').style.display   = adHocMode ? 'none' : '';
+  // Grid sections
   document.getElementById('gridSection').style.display   = adHocMode ? 'none' : (selectedPattern ? 'block' : 'none');
   document.getElementById('adHocSection').style.display  = adHocMode ? 'block' : 'none';
+
+  // Controls + transport
   document.getElementById('controlsRow').style.display   = adHocMode ? 'flex' : (selectedPattern ? 'flex' : 'none');
   document.getElementById('transportRow').style.display  = adHocMode ? 'flex' : (selectedPattern ? 'flex' : 'none');
+
+  // Keep patternInfo block always visible — populate with ad hoc values or restore library state
+  const emptyState  = document.getElementById('emptyState');
+  const selectedDiv = document.getElementById('selectedInfo');
+  const nameEl      = document.getElementById('selectedName');
+  const metaEl      = document.getElementById('selectedMeta');
+  const dispEl      = document.getElementById('selectedDisplay');
+
+  if (adHocMode) {
+    // Show the info block with fixed ad hoc values — layout stays identical
+    emptyState.style.display  = 'none';
+    selectedDiv.style.display = 'block';
+    nameEl.textContent        = 'My Rhythm';
+    metaEl.innerHTML          = '<span class="badge badge-cat">Custom</span>'
+                              + '<span class="badge badge-ts" id="adhocTsBadge">' + adHocTs + '</span>';
+    dispEl.innerHTML          = '&nbsp;'; // empty but holds space so layout doesn't shift
+  } else {
+    // Restore library state
+    if (selectedPattern) {
+      emptyState.style.display  = 'none';
+      selectedDiv.style.display = 'block';
+      nameEl.textContent        = selectedPattern.name;
+      metaEl.innerHTML          = '<span class="badge badge-cat">' + selectedPattern.cat + '</span>'
+                                + '<span class="badge badge-ts">' + selectedPattern.ts + '</span>';
+      dispEl.textContent        = selectedPattern.disp;
+    } else {
+      emptyState.style.display  = '';
+      selectedDiv.style.display = 'none';
+    }
+  }
 
   if (adHocMode && adHocBeats.length === 0) {
     adHocBeats = adhocDefaultMeasure(adHocTs);
     renderAdHocGrid();
     updateAdHocBeatCount();
-  }
-
-  // Update empty state message to reflect current mode
-  const emptyMsg = document.getElementById('emptyStateText');
-  if (emptyMsg) {
-    emptyMsg.innerHTML = adHocMode
-      ? 'Switch to <strong>Ad Hoc</strong> mode is active.<br>Tap cells on the grid to build your rhythm.'
-      : '<strong>Browse</strong> and select a pattern,<br>OR switch to <strong>Ad Hoc</strong> to build your own.';
   }
 }
 
@@ -2227,6 +2250,9 @@ document.addEventListener('DOMContentLoaded', () => {
     adHocTs    = e.target.value;
     adHocBeats = adhocDefaultMeasure(adHocTs);
     renderAdHocGrid(); updateAdHocBeatCount();
+    // Keep the time signature badge in sync
+    const tsBadge = document.getElementById('adhocTsBadge');
+    if (tsBadge) tsBadge.textContent = adHocTs;
   });
 
   document.getElementById('adhocAddBeatBtn').addEventListener('click',    adhocAddBeat);
