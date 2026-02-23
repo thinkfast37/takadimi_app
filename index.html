@@ -1068,7 +1068,7 @@ html, body {
       <div class="pattern-info" id="patternInfo">
         <div class="empty-state" id="emptyState">
           <div class="empty-icon">♩</div>
-          <div class="empty-text">Select a pattern from the list<br>to begin practicing</div>
+          <div class="empty-text" id="emptyStateText">Select a pattern from the list<br>to begin practicing</div>
         </div>
         <div id="selectedInfo" style="display:none">
           <div class="selected-name" id="selectedName">—</div>
@@ -2040,6 +2040,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ── Init tempo display ────────────────────────────────────────────────
   setTempo(80);
+
+  // ── Auto-open sidebar on mobile at load ──────────────────────────────
+  if (window.innerWidth < 768) {
+    openSidebar();
+    // On mobile, update empty state since sidebar opens over the content
+    const emptyMsg = document.getElementById('emptyStateText');
+    if (emptyMsg) emptyMsg.innerHTML = 'Choose a pattern from the list<br>or switch to <strong>Ad Hoc</strong> to build your own.';
+  }
 });
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -2200,6 +2208,14 @@ function setMode(mode) {
     adHocBeats = adhocDefaultMeasure(adHocTs);
     renderAdHocGrid();
     updateAdHocBeatCount();
+  }
+
+  // Update empty state message to reflect current mode
+  const emptyMsg = document.getElementById('emptyStateText');
+  if (emptyMsg) {
+    emptyMsg.innerHTML = adHocMode
+      ? 'Switch to <strong>Ad Hoc</strong> mode is active.<br>Tap cells on the grid to build your rhythm.'
+      : 'Tap ☰ to browse patterns,<br>or switch to <strong>Ad Hoc</strong> to build your own.';
   }
 }
 
