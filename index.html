@@ -765,7 +765,9 @@ html, body {
 }
 
 /* ── PAGE LOAD ANIMATION ──────────────────────────────────────────────── */
-.sidebar { animation: slide-in-left 0.4s cubic-bezier(0.2,0,0,1) both; }
+@media (min-width: 768px) {
+  .sidebar { animation: slide-in-left 0.4s cubic-bezier(0.2,0,0,1) both; }
+}
 @keyframes slide-in-left {
   from { opacity: 0; transform: translateX(-16px); }
   to   { opacity: 1; transform: translateX(0); }
@@ -1211,6 +1213,25 @@ function ensureAudioCtx() {
   if (audioCtx.state === 'suspended') audioCtx.resume();
   return audioCtx;
 }
+
+// iOS Safari requires AudioContext to be resumed inside a direct user gesture.
+// We unlock it on the very first touch/click anywhere on the page.
+function unlockAudio() {
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  } else if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    // Play and immediately stop a silent buffer to fully unlock on iOS
+    const buf = audioCtx.createBuffer(1, 1, 22050);
+    const src = audioCtx.createBufferSource();
+    src.buffer = buf;
+    src.connect(audioCtx.destination);
+    src.start(0);
+    audioCtx.resume();
+  }
+}
+document.addEventListener('touchstart', unlockAudio, { once: true, passive: true });
+document.addEventListener('click',      unlockAudio, { once: true });
 
 // Sound parameters per syllable
 const SOUND_PARAMS = {
@@ -1748,6 +1769,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (isPlaying) {
       stopPlayback();
     } else {
+      // Ensure audio is unlocked on iOS before starting — must be synchronous in click handler
+      unlockAudio();
       const countIn = document.getElementById('countInCheck').checked;
       startPlayback(selectedPattern, currentBPM, countIn);
     }
