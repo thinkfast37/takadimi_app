@@ -949,6 +949,7 @@ html, body {
   .content-area { padding: 16px 16px 24px; }
 
   .selected-name { font-size: 28px; }
+  .adhoc-name-input { font-size: 28px; }
 
   .controls-row { gap: 20px; }
 
@@ -962,6 +963,96 @@ html, body {
 @media (max-width: 400px) {
   .slot-cell { width: 30px; height: 30px; font-size: 10px; }
 }
+
+/* ── FAVORITES ────────────────────────────────────────────────────────── */
+.selected-name-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.selected-name-row .selected-name { margin-bottom: 0; }
+
+.fav-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 24px;
+  line-height: 1;
+  color: var(--text-muted);
+  padding: 2px 4px;
+  transition: color var(--trans), transform 0.1s ease;
+  user-select: none;
+  flex-shrink: 0;
+}
+.fav-btn:hover { color: #e05080; transform: scale(1.2); }
+.fav-btn.favorited { color: #e05080; }
+
+.name-edit-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: var(--text-muted);
+  padding: 2px 6px;
+  transition: color var(--trans);
+  flex-shrink: 0;
+  line-height: 1;
+}
+.name-edit-btn:hover { color: var(--amber); }
+
+.selected-name.adhoc-name {
+  cursor: pointer;
+  border-bottom: 1.5px dashed var(--text-muted);
+  padding-bottom: 2px;
+}
+.selected-name.adhoc-name:hover { border-bottom-color: var(--amber); }
+
+.adhoc-name-input {
+  font-family: var(--font-display);
+  font-size: 38px;
+  letter-spacing: 0.04em;
+  color: var(--text);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid var(--amber);
+  outline: none;
+  flex: 1;
+  min-width: 0;
+  padding: 0 0 2px 0;
+  line-height: 1.1;
+}
+
+.fav-item-remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+  color: #e05080;
+  padding: 2px 4px;
+  line-height: 1;
+  transition: opacity var(--trans);
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+.fav-item-remove:hover { opacity: 1; }
+
+.adhoc-save-fav-btn {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--border2);
+  background: var(--surface2);
+  border-radius: var(--radius);
+  color: var(--text-dim);
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all var(--trans);
+  text-align: center;
+}
+.adhoc-save-fav-btn:hover { border-color: #c04060; color: #e05080; background: var(--surface3); }
 
 /* ── PAGE LOAD ANIMATION ──────────────────────────────────────────────── */
 @media (min-width: 768px) {
@@ -1029,6 +1120,10 @@ html, body {
           <button class="adhoc-btn" id="adhocClearBtn">Clear</button>
         </div>
       </div>
+      <div class="adhoc-section">
+        <div class="adhoc-section-label">Favourites</div>
+        <button class="adhoc-save-fav-btn" id="adhocSaveFavBtn" style="display:none">♡ &nbsp;Save to Favourites</button>
+      </div>
       <div class="adhoc-hint">
         <div class="adhoc-hint-text">
           <strong>Tap cells</strong> to toggle syllables on/off.<br><br>
@@ -1071,7 +1166,12 @@ html, body {
           <div class="empty-text" id="emptyStateText">Select a pattern from the list<br>to begin practicing</div>
         </div>
         <div id="selectedInfo" style="display:none">
-          <div class="selected-name" id="selectedName">—</div>
+          <div class="selected-name-row">
+            <div class="selected-name" id="selectedName">—</div>
+            <input class="adhoc-name-input" id="adhocNameInput" type="text" maxlength="60" style="display:none" />
+            <button class="name-edit-btn" id="nameEditBtn" aria-label="Edit rhythm name" title="Edit name" style="display:none">✎</button>
+            <button class="fav-btn" id="favBtn" aria-label="Toggle favourite" style="display:none">♡</button>
+          </div>
           <div class="selected-meta" id="selectedMeta"></div>
           <div class="selected-display" id="selectedDisplay"></div>
         </div>
@@ -1752,15 +1852,125 @@ let currentBPM      = 80;
 let searchQuery     = '';
 let activeCategory  = 'All';
 
+// ══════════════════════════════════════════════════════════════════════════════
+// FAVOURITES
+// ══════════════════════════════════════════════════════════════════════════════
+// Storage: localStorage (persists per browser; Chrome profile sync not available
+// to web pages without a backend — data is local to each browser instance).
+const FAVORITES_KEY = 'takadimi_favorites';
+
+function loadFavorites() {
+  try { return JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]'); }
+  catch { return []; }
+}
+
+function saveFavorites(favs) {
+  localStorage.setItem(FAVORITES_KEY, JSON.stringify(favs));
+}
+
+function isLibraryFavorite(patternName) {
+  return loadFavorites().some(f => f.type === 'library' && f.name === patternName);
+}
+
+function toggleLibraryFavorite(pattern) {
+  const favs = loadFavorites();
+  const idx  = favs.findIndex(f => f.type === 'library' && f.name === pattern.name);
+  if (idx >= 0) favs.splice(idx, 1);
+  else          favs.push({ type: 'library', name: pattern.name });
+  saveFavorites(favs);
+  updateFavoriteIndicator();
+  if (activeCategory === '♥') renderPatternList();
+}
+
+function saveAdHocFavorite(label, beats, ts) {
+  const favs = loadFavorites();
+  favs.push({ type: 'adhoc', id: Date.now().toString(), label, ts, beats: JSON.parse(JSON.stringify(beats)) });
+  saveFavorites(favs);
+}
+
+function removeAdHocFavorite(id) {
+  saveFavorites(loadFavorites().filter(f => !(f.type === 'adhoc' && f.id === id)));
+  if (activeCategory === '♥') renderPatternList();
+}
+
+// Convert stored adHocBeats format to pattern beats format
+function adHocBeatsToSlots(storedBeats) {
+  return storedBeats.map(b => {
+    const syls  = b.type === 'S' ? STRAIGHT_SYLS : TRIPLET_SYLS;
+    const slots = b.on.map((on, i) => on ? syls[i] : null);
+    return { type: b.type, slots };
+  });
+}
+
+// Build a display-ready pattern list including library + ad hoc favourites
+function getFavouritePatterns() {
+  const favs = loadFavorites();
+  const results = [];
+  favs.forEach(f => {
+    if (f.type === 'library') {
+      const p = PATTERNS.find(p => p.name === f.name);
+      if (p) results.push(p);
+    } else if (f.type === 'adhoc') {
+      results.push({
+        name:        f.label,
+        cat:         'Ad Hoc',
+        disp:        '',
+        ts:          f.ts,
+        beats:       adHocBeatsToSlots(f.beats),
+        _favId:      f.id,
+        _favBeats:   f.beats,  // original adHocBeats-format, for loading back
+        _isFavAdHoc: true,
+      });
+    }
+  });
+  return results;
+}
+
+function updateFavoriteIndicator() {
+  const btn = document.getElementById('favBtn');
+  if (!btn) return;
+  if (adHocMode) {
+    btn.style.display = '';
+    btn.textContent = '♡';
+    btn.classList.remove('favorited');
+    return;
+  }
+  if (!selectedPattern) {
+    btn.style.display = 'none';
+    return;
+  }
+  btn.style.display = '';
+  const isFav = isLibraryFavorite(selectedPattern.name);
+  btn.textContent = isFav ? '♥' : '♡';
+  btn.classList.toggle('favorited', isFav);
+}
+
+// Load a saved ad hoc favourite into ad hoc mode
+function loadAdHocFavourite(favPattern) {
+  adHocName  = favPattern.name || 'My Rhythm';
+  setMode('adhoc');
+  adHocTs    = favPattern.ts;
+  adHocBeats = JSON.parse(JSON.stringify(favPattern._favBeats));
+  // Sync dropdown
+  const tsSelect = document.getElementById('adhocTs');
+  if (tsSelect) tsSelect.value = adHocTs;
+  const tsBadge = document.getElementById('adhocTsBadge');
+  if (tsBadge) tsBadge.textContent = adHocTs;
+  renderAdHocGrid();
+  updateAdHocBeatCount();
+  if (window.innerWidth < 768) closeSidebar();
+}
+
 // ── CATEGORIES ────────────────────────────────────────────────────────────
 function getCategories() {
-  const seen = new Set(['All']);
+  const seen = new Set();
   PATTERNS.forEach(p => seen.add(p.cat));
-  return [...seen];
+  return ['All', '♥', ...seen];
 }
 
 // ── FILTERED PATTERNS ─────────────────────────────────────────────────────
 function getFiltered() {
+  if (activeCategory === '♥') return getFavouritePatterns();
   const q = searchQuery.toLowerCase().trim();
   return PATTERNS.filter(p => {
     const catMatch = activeCategory === 'All' || p.cat === activeCategory;
@@ -1790,10 +2000,25 @@ function renderPatternList() {
     return;
   }
 
-  listEl.innerHTML = filtered.map((p, i) => {
-    const idx     = PATTERNS.indexOf(p);
-    const isSelc  = selectedPattern === p;
-    const nBeats  = p.beats.length;
+  listEl.innerHTML = filtered.map((p) => {
+    const nBeats = p.beats.length;
+    if (p._isFavAdHoc) {
+      return `
+        <div class="pattern-item" data-fav-id="${p._favId}" role="button" tabindex="0"
+             style="flex-direction:row;align-items:center;padding-right:8px;gap:0">
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+            <div class="pattern-item-name">${p.name}</div>
+            <div class="pattern-item-meta">
+              <span class="p-cat">Ad Hoc</span>
+              <span class="p-ts">${p.ts}</span>
+              <span class="p-hits">${nBeats} beat${nBeats !== 1 ? 's' : ''}</span>
+            </div>
+          </div>
+          <button class="fav-item-remove" data-remove-fav-id="${p._favId}" title="Remove from favourites">♥</button>
+        </div>`;
+    }
+    const idx    = PATTERNS.indexOf(p);
+    const isSelc = selectedPattern === p;
     return `
       <div class="pattern-item${isSelc ? ' selected' : ''}" data-idx="${idx}" role="button" tabindex="0">
         <div class="pattern-item-name">${p.name}</div>
@@ -1915,6 +2140,7 @@ function selectPattern(pattern) {
 
   renderGrid(pattern);
   renderPatternList(); // update selected state in list
+  updateFavoriteIndicator();
 
   // Close sidebar on mobile
   if (window.innerWidth < 768) closeSidebar();
@@ -1965,8 +2191,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ── Pattern list click ─────────────────────────────────────────────────
   document.getElementById('patternList').addEventListener('click', e => {
+    // Remove-from-favourites button on ad hoc fav items
+    const removeBtn = e.target.closest('.fav-item-remove');
+    if (removeBtn) {
+      e.stopPropagation();
+      removeAdHocFavorite(removeBtn.dataset.removeFavId);
+      return;
+    }
     const item = e.target.closest('.pattern-item');
     if (!item) return;
+    // Ad hoc favourite: load into ad hoc mode
+    if (item.dataset.favId) {
+      const favs = loadFavorites();
+      const fav  = favs.find(f => f.type === 'adhoc' && f.id === item.dataset.favId);
+      if (fav) {
+        loadAdHocFavourite({
+          ts:        fav.ts,
+          _favBeats: fav.beats,
+        });
+      }
+      return;
+    }
+    // Library pattern
     const idx = +item.dataset.idx;
     selectPattern(PATTERNS[idx]);
   });
@@ -1975,6 +2221,21 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.key === 'Enter' || e.key === ' ') {
       const item = e.target.closest('.pattern-item');
       if (item) { e.preventDefault(); item.click(); }
+    }
+  });
+
+  // ── Favourite toggle (library) or save (ad hoc) ────────────────────────
+  document.getElementById('favBtn').addEventListener('click', () => {
+    if (adHocMode) {
+      const hasAny = adHocBeats.some(b => b.on.some(Boolean));
+      if (!hasAny) { alert('Add some notes first before saving to favourites.'); return; }
+      saveAdHocFavorite(adHocName || 'My Rhythm', adHocBeats, adHocTs);
+      const btn = document.getElementById('favBtn');
+      btn.textContent = '♥';
+      btn.classList.add('favorited');
+      setTimeout(() => { btn.textContent = '♡'; btn.classList.remove('favorited'); }, 1500);
+    } else if (selectedPattern) {
+      toggleLibraryFavorite(selectedPattern);
     }
   });
 
@@ -2058,6 +2319,7 @@ const TRIPLET_SYLS  = ['ta', 'ki', 'da'];
 let adHocMode  = false;
 let adHocTs    = '4/4';
 let adHocBeats = [];
+let adHocName  = 'My Rhythm';
 
 function adhocDefaultMeasure(ts) {
   const n = parseInt(ts.split('/')[0]);
@@ -2079,7 +2341,9 @@ function adhocAddMeasure() {
 
 function adhocClear() {
   if (isPlaying) stopPlayback();
+  adHocName  = 'My Rhythm';
   adHocBeats = adhocDefaultMeasure(adHocTs);
+  document.getElementById('selectedName').textContent = adHocName;
   renderAdHocGrid(); updateAdHocBeatCount();
 }
 
@@ -2216,12 +2480,16 @@ function setMode(mode) {
     // Show the info block with fixed ad hoc values — layout stays identical
     emptyState.style.display  = 'none';
     selectedDiv.style.display = 'block';
-    nameEl.textContent        = 'My Rhythm';
+    nameEl.textContent        = adHocName;
+    nameEl.classList.add('adhoc-name');
+    document.getElementById('nameEditBtn').style.display = '';
     metaEl.innerHTML          = '<span class="badge badge-cat">Custom</span>'
                               + '<span class="badge badge-ts" id="adhocTsBadge">' + adHocTs + '</span>';
     dispEl.innerHTML          = '&nbsp;'; // empty but holds space so layout doesn't shift
   } else {
     // Restore library state
+    nameEl.classList.remove('adhoc-name');
+    document.getElementById('nameEditBtn').style.display = 'none';
     if (selectedPattern) {
       emptyState.style.display  = 'none';
       selectedDiv.style.display = 'block';
@@ -2234,6 +2502,7 @@ function setMode(mode) {
       selectedDiv.style.display = 'none';
     }
   }
+  updateFavoriteIndicator();
 
   if (adHocMode && adHocBeats.length === 0) {
     adHocBeats = adhocDefaultMeasure(adHocTs);
@@ -2258,6 +2527,50 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('adhocAddBeatBtn').addEventListener('click',    adhocAddBeat);
   document.getElementById('adhocAddMeasureBtn').addEventListener('click', adhocAddMeasure);
   document.getElementById('adhocClearBtn').addEventListener('click',      adhocClear);
+
+  // ── Ad hoc name inline editing ─────────────────────────────────────────
+  function startAdHocNameEdit() {
+    const nameEl = document.getElementById('selectedName');
+    const input  = document.getElementById('adhocNameInput');
+    input.value  = adHocName;
+    nameEl.style.display = 'none';
+    document.getElementById('nameEditBtn').style.display = 'none';
+    input.style.display  = '';
+    input.focus();
+    input.select();
+  }
+  function finishAdHocNameEdit() {
+    const nameEl = document.getElementById('selectedName');
+    const input  = document.getElementById('adhocNameInput');
+    adHocName = input.value.trim() || 'My Rhythm';
+    nameEl.textContent   = adHocName;
+    input.style.display  = 'none';
+    nameEl.style.display = '';
+    document.getElementById('nameEditBtn').style.display = '';
+  }
+  document.getElementById('nameEditBtn').addEventListener('click', startAdHocNameEdit);
+  document.getElementById('selectedName').addEventListener('click', () => {
+    if (adHocMode) startAdHocNameEdit();
+  });
+  const adhocNameInput = document.getElementById('adhocNameInput');
+  adhocNameInput.addEventListener('blur', () => { if (adHocMode) finishAdHocNameEdit(); });
+  adhocNameInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter')  { e.preventDefault(); adhocNameInput.blur(); }
+    if (e.key === 'Escape') { adhocNameInput.value = adHocName; adhocNameInput.blur(); }
+  });
+
+  document.getElementById('adhocSaveFavBtn').addEventListener('click', () => {
+    const hasAny = adHocBeats.some(b => b.on.some(Boolean));
+    if (!hasAny) { alert('Add some notes first before saving to favourites.'); return; }
+    const label = prompt('Name this rhythm:', 'My Rhythm');
+    if (label === null) return; // cancelled
+    saveAdHocFavorite(label.trim() || 'My Rhythm', adHocBeats, adHocTs);
+    const btn = document.getElementById('adhocSaveFavBtn');
+    const orig = btn.innerHTML;
+    btn.innerHTML = '♥ &nbsp;Saved!';
+    btn.style.color = '#e05080';
+    setTimeout(() => { btn.innerHTML = orig; btn.style.color = ''; }, 1500);
+  });
 
   // Replace play button with mode-aware version
   const playBtn = document.getElementById('playBtn');
