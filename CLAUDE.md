@@ -206,13 +206,18 @@ ta ki da = T(ta,ki,da)
 
 Allows students to build custom patterns by clicking cells on an editable grid.
 
-**State**: `adHocBeats` array of `{ type: 'S'|'T', on: [bool...] }`
+**State**: `adHocBeats` array of `{ type: 'S'|'T', on: [bool...] }`, plus `adHocName` string (default `'My Rhythm'`)
 
 **Key behaviours**:
 - All cells start as rests (off) when a beat is created
 - Switching a beat between 16th (S) and triplet (T) clears that beat's selections
 - Changing time signature resets the entire pattern
-- The info block always shows: title="My Rhythm", category="Custom", time sig from dropdown
+- The info block always shows: editable title (default "My Rhythm"), category="Custom", time sig from dropdown
+- The rhythm name is editable inline — clicking the name or the ✎ pencil icon activates an input; Enter/blur saves, Escape cancels
+- `adHocName` persists across beat/TS changes; Clear resets it to "My Rhythm"
+- Loading a saved ad hoc favourite restores that favourite's name
+- The ♡ heart button in the main panel saves the rhythm to favourites using the current `adHocName` (no prompt)
+- The sidebar "Save to Favourites" button is hidden — the main panel heart replaces it
 - This keeps the layout identical to library mode — no jarring shifts when switching modes
 - Play is blocked if no cells are selected
 
