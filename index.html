@@ -1282,7 +1282,6 @@ const PATTERNS = [
   {name:"Funky Syncopation",       cat:"1-Beat Straight",    disp:"Ta-ka · mi",   ts:"4/4", beats:[S(ta,ka,_,mi)]},
 
   // ── 2-BEAT STRAIGHT ───────────────────────────────────────────────────
-  {name:"Two Quarters",            cat:"2-Beat Straight",    disp:"Ta | Ta",            ts:"4/4", beats:[S(ta,_,_,_), S(ta,_,_,_)]},
   {name:"Dotted Quarter + 8th",    cat:"2-Beat Straight",    disp:"Ta (hold) Di ·",     ts:"4/4", beats:[S(ta,_,_,_), S(_,_,di,_)]},
   {name:"8th-8th-Quarter",         cat:"2-Beat Straight",    disp:"Ta · Di ·  Ta",      ts:"4/4", beats:[S(ta,_,di,_), S(ta,_,_,_)]},
   {name:"Quarter + Two 8ths",      cat:"2-Beat Straight",    disp:"Ta  | Ta · Di ·",    ts:"4/4", beats:[S(ta,_,_,_), S(ta,_,di,_)]},
@@ -1293,22 +1292,11 @@ const PATTERNS = [
   {name:"Tumbling Landing",        cat:"2-Beat Straight",    disp:"Ta · Di-mi  Ta",     ts:"4/4", beats:[S(ta,_,di,mi), S(ta,_,_,_)]},
 
   // ── 1-MEASURE STRAIGHT ────────────────────────────────────────────────
-  {name:"Four Quarters",           cat:"1-Measure Straight", disp:"Ta | Ta | Ta | Ta",         ts:"4/4", beats:[S(ta,_,_,_),S(ta,_,_,_),S(ta,_,_,_),S(ta,_,_,_)]},
-  {name:"Eight 8th Notes",         cat:"1-Measure Straight", disp:"Ta-Di × 4 beats",           ts:"4/4", beats:[S(ta,_,di,_),S(ta,_,di,_),S(ta,_,di,_),S(ta,_,di,_)]},
   {name:"Tresillo",                cat:"1-Measure Straight", disp:"Ta · · · | ·Di · | · | Ta",  ts:"4/4", beats:[S(ta,_,_,_),S(_,_,di,_),S(_,_,_,_),S(ta,_,_,_)]},
-  {name:"3+3+2+3+3+2 in 16ths",   cat:"1-Measure Straight", disp:"Ta··mi··Di· × 2",           ts:"4/4", beats:[S(ta,_,_,mi),S(_,_,di,_),S(ta,_,_,mi),S(_,_,di,_)]},
-  {name:"Gallop x4",               cat:"1-Measure Straight", disp:"Ta · · mi × 4",             ts:"4/4", beats:[S(ta,_,_,mi),S(ta,_,_,mi),S(ta,_,_,mi),S(ta,_,_,mi)]},
-  {name:"Quarter + 8th-8th Groove",cat:"1-Measure Straight", disp:"Ta | Ta-Di | Ta | Ta-Di",   ts:"4/4", beats:[S(ta,_,_,_),S(ta,_,di,_),S(ta,_,_,_),S(ta,_,di,_)]},
-  {name:"8th-8th + Quarter Groove",cat:"1-Measure Straight", disp:"Ta-Di-Ta | Ta-Di-Ta",       ts:"4/4", beats:[S(ta,_,di,_),S(ta,_,_,_),S(ta,_,di,_),S(ta,_,_,_)]},
   {name:"Anticipated Beat 3",      cat:"1-Measure Straight", disp:"Ta·Di · ka · · Ta · · Ta",  ts:"4/4", beats:[S(ta,_,di,_),S(_,ka,_,_),S(ta,_,_,_),S(ta,_,_,_)]},
   {name:"And of 4 Push",           cat:"1-Measure Straight", disp:"8ths × 3 | Ta · Di-mi",     ts:"4/4", beats:[S(ta,_,di,_),S(ta,_,di,_),S(ta,_,di,_),S(ta,_,di,mi)]},
-  {name:"Full Ska Bar",            cat:"1-Measure Straight", disp:"· ka · · × 4",              ts:"4/4", beats:[S(_,ka,_,_),S(_,ka,_,_),S(_,ka,_,_),S(_,ka,_,_)]},
-  {name:"Funk 16th Groove",        cat:"1-Measure Straight", disp:"Ta·Di-mi-Ta × 2",           ts:"4/4", beats:[S(ta,_,di,mi),S(ta,_,_,_),S(ta,_,di,mi),S(ta,_,_,_)]},
   {name:"Rumba Clave 3-side",      cat:"1-Measure Straight", disp:"Ta · · · | ·Di | · | ··Di·",ts:"4/4", beats:[S(ta,_,_,_),S(_,_,di,_),S(_,_,_,_),S(_,_,di,_)]},
   {name:"Bossa Nova",              cat:"1-Measure Straight", disp:"Ta·Di · · · Ta·Di · Ta",    ts:"4/4", beats:[S(ta,_,di,_),S(_,_,_,_),S(ta,_,di,_),S(ta,_,_,_)]},
-  {name:"Dotted Quarter Loop",     cat:"1-Measure Straight", disp:"Ta (hold) Di | Ta (hold) Di",ts:"4/4",beats:[S(ta,_,_,_),S(_,_,di,_),S(ta,_,_,_),S(_,_,di,_)]},
-  {name:"Post-Punk Motorik",       cat:"1-Measure Straight", disp:"Ta-Di × 4 (snare B3 only)", ts:"4/4", beats:[S(ta,_,di,_),S(ta,_,di,_),S(ta,_,di,_),S(ta,_,di,_)]},
-  {name:"Floating Quarters",       cat:"1-Measure Straight", disp:"Ta · · Di | Ta · · Di",     ts:"4/4", beats:[S(ta,_,_,_),S(_,_,di,_),S(ta,_,_,_),S(_,_,di,_)]},
 
   // ── 2-MEASURE STRAIGHT ────────────────────────────────────────────────
   {name:"Son Clave 3-2",           cat:"2-Measure Straight", disp:"Tresillo | 2-side",          ts:"4/4",
@@ -1335,18 +1323,10 @@ const PATTERNS = [
   {name:"Triplet Down + Middle",   cat:"1-Beat Triplet",     disp:"Ta-ki ·",      ts:"4/4", beats:[T(ta,ki,_)]},
 
   // ── 2-BEAT TRIPLET ────────────────────────────────────────────────────
-  {name:"Shuffle Classic",         cat:"2-Beat Triplet",     disp:"Ta·da Ta·da",  ts:"4/4", beats:[T(ta,_,da),T(ta,_,da)]},
   {name:"Slow Blues Landing",      cat:"2-Beat Triplet",     disp:"Ta·da Ta",     ts:"4/4", beats:[T(ta,_,da),T(ta,_,_)]},
-  {name:"Jazz Swing Ride",         cat:"2-Beat Triplet",     disp:"Ta·DA Ta·DA",  ts:"4/4", beats:[T(ta,_,da),T(ta,_,da)]},
-  {name:"Two Spacious Quarters",   cat:"2-Beat Triplet",     disp:"Ta · · Ta · ·",ts:"4/4", beats:[T(ta,_,_),T(ta,_,_)]},
-  {name:"Offbeat Triplet Churn",   cat:"2-Beat Triplet",     disp:"· ki-da · ki-da",ts:"4/4",beats:[T(_,ki,da),T(_,ki,da)]},
-  {name:"Full Six Triplets",       cat:"2-Beat Triplet",     disp:"Ta-ki-da Ta-ki-da",ts:"4/4",beats:[T(ta,ki,da),T(ta,ki,da)]},
-  {name:"Triplet + Quarter Landing",cat:"2-Beat Triplet",    disp:"Ta · da  Ta",  ts:"4/4", beats:[T(ta,_,da),T(ta,_,_)]},
 
   // ── 1-MEASURE TRIPLET ─────────────────────────────────────────────────
-  {name:"Full Shuffle Bar",        cat:"1-Measure Triplet",  disp:"Ta·da × 4",    ts:"4/4", beats:[T(ta,_,da),T(ta,_,da),T(ta,_,da),T(ta,_,da)]},
   {name:"Gospel Shout Groove",     cat:"1-Measure Triplet",  disp:"Shuffle×2 | Ta-ki-da | Ta",ts:"4/4", beats:[T(ta,_,da),T(ta,_,da),T(ta,ki,da),T(ta,_,_)]},
-  {name:"12/8 Ballad Motown",      cat:"1-Measure Triplet",  disp:"Ta·da Ta | Ta·da Ta",ts:"4/4",beats:[T(ta,_,da),T(ta,_,_),T(ta,_,da),T(ta,_,_)]},
   {name:"Quarter Note Triplet",    cat:"1-Measure Triplet",  disp:"3 evenly spaced over 4 beats",ts:"4/4",beats:[T(ta,_,_),T(_,_,da),T(_,_,_),T(ta,_,_)]},
   {name:"Afrobeat Triplet Clave",  cat:"1-Measure Triplet",  disp:"Ta·da Ta | Ta·da Ta·da",ts:"4/4",beats:[T(ta,_,da),T(ta,_,_),T(ta,_,da),T(ta,_,da)]},
   {name:"Slow Blues Measure",      cat:"1-Measure Triplet",  disp:"Shuffle × 3 | Ta",ts:"4/4", beats:[T(ta,_,da),T(ta,_,da),T(ta,_,da),T(ta,_,_)]},
@@ -1355,9 +1335,7 @@ const PATTERNS = [
   {name:"Swung 16ths",             cat:"Mixed Feel", disp:"16ths → Shuffle",      ts:"4/4", beats:[S(ta,ka,di,mi),S(ta,ka,di,mi),T(ta,_,da),T(ta,_,da)]},
   {name:"Triplet Stumble into Straight",cat:"Mixed Feel",disp:"Ta·da | 16ths ×3", ts:"4/4", beats:[T(ta,_,da),S(ta,ka,di,mi),S(ta,ka,di,mi),S(ta,ka,di,mi)]},
   {name:"Straight then Triplet Ending",cat:"Mixed Feel",disp:"8ths ×3 | Ta·da",   ts:"4/4", beats:[S(ta,_,di,_),S(ta,_,di,_),S(ta,_,di,_),T(ta,_,da)]},
-  {name:"Hemiola",                 cat:"Mixed Feel", disp:"3 over 4",             ts:"4/4", beats:[S(ta,_,_,_),S(_,_,di,_),S(_,_,_,_),S(ta,_,_,_)]},
   {name:"Afrobeat Hybrid",         cat:"Mixed Feel", disp:"8th×2 | Shuffle×2",    ts:"4/4", beats:[S(ta,_,di,_),S(ta,_,di,_),T(ta,_,da),T(ta,_,da)]},
-  {name:"Trap Triplet Hi-Hat",     cat:"Mixed Feel", disp:"16ths × 4",            ts:"4/4", beats:[S(ta,ka,di,mi),S(ta,ka,di,mi),S(ta,ka,di,mi),S(ta,ka,di,mi)]},
   {name:"Shuffle Pickup into Straight",cat:"Mixed Feel",disp:"· · da | 16ths ×3", ts:"4/4", beats:[T(_,_,da),S(ta,ka,di,mi),S(ta,ka,di,mi),S(ta,ka,di,mi)]},
   {name:"Half-Measure Switch",     cat:"Mixed Feel", disp:"16th bar | Shuffle bar",ts:"4/4",
    beats:[S(ta,ka,di,mi),S(ta,ka,di,mi),S(ta,ka,di,mi),S(ta,ka,di,mi),T(ta,_,da),T(ta,_,da),T(ta,_,da),T(ta,_,da)]},
