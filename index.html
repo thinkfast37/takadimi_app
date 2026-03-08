@@ -1865,7 +1865,8 @@ function loadFavorites() {
 }
 
 function saveFavorites(favs) {
-  localStorage.setItem(FAVORITES_KEY, JSON.stringify(favs));
+  try { localStorage.setItem(FAVORITES_KEY, JSON.stringify(favs)); }
+  catch (e) { alert('Could not save to favourites — storage may be full or unavailable (e.g. private browsing).'); }
 }
 
 function isLibraryFavorite(patternName) {
@@ -2206,6 +2207,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const fav  = favs.find(f => f.type === 'adhoc' && f.id === item.dataset.favId);
       if (fav) {
         loadAdHocFavourite({
+          name:      fav.label,
           ts:        fav.ts,
           _favBeats: fav.beats,
         });
@@ -2230,6 +2232,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const hasAny = adHocBeats.some(b => b.on.some(Boolean));
       if (!hasAny) { alert('Add some notes first before saving to favourites.'); return; }
       saveAdHocFavorite(adHocName || 'My Rhythm', adHocBeats, adHocTs);
+      renderPatternList();
       const btn = document.getElementById('favBtn');
       btn.textContent = '♥';
       btn.classList.add('favorited');
