@@ -775,29 +775,13 @@ html, body {
 }
 .mode-btn:not(.active):hover { color: var(--text); }
 
-/* ── AD HOC SIDEBAR CONTROLS ─────────────────────────────────────────────── */
-.adhoc-controls {
-  display: none;
-  flex-direction: column;
-  flex: 1;
-  overflow: hidden;
-}
-.adhoc-controls.visible { display: flex; }
-
-.adhoc-section {
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--border);
+/* ── AD HOC TOOLBAR (main panel) ─────────────────────────────────────────── */
+.adhoc-toolbar {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: 8px;
-}
-
-.adhoc-section-label {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--text-dim);
+  margin-bottom: 14px;
+  flex-wrap: wrap;
 }
 
 .ts-select {
@@ -811,47 +795,28 @@ html, body {
   font-weight: 600;
   cursor: pointer;
   outline: none;
-  width: 100%;
+  width: auto;
   transition: border-color var(--trans);
 }
 .ts-select:focus { border-color: var(--amber-dim); }
 
-.adhoc-action-btns {
-  display: flex;
-  gap: 6px;
-}
-
 .adhoc-btn {
-  flex: 1;
-  padding: 8px 6px;
+  padding: 7px 14px;
   border: 1px solid var(--border2);
   background: var(--surface2);
   border-radius: var(--radius);
   color: var(--text-dim);
   font-family: var(--font-ui);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.04em;
   cursor: pointer;
   transition: all var(--trans);
-  text-align: center;
+  white-space: nowrap;
 }
 .adhoc-btn:hover { border-color: var(--amber-dim); color: var(--amber); background: var(--surface3); }
-
-.adhoc-hint {
-  flex: 1;
-  overflow-y: auto;
-  padding: 14px 16px;
-  scrollbar-width: none;
-}
-.adhoc-hint::-webkit-scrollbar { display: none; }
-
-.adhoc-hint-text {
-  font-size: 12px;
-  color: var(--text-muted);
-  line-height: 1.7;
-}
-.adhoc-hint-text strong { color: var(--text-dim); font-weight: 600; }
+.adhoc-btn:disabled { opacity: 0.3; cursor: default; pointer-events: none; }
+.adhoc-btn-clear { margin-left: auto; }
 
 /* ── AD HOC GRID (editable) ──────────────────────────────────────────────── */
 .adhoc-grid-header {
@@ -1129,40 +1094,6 @@ html, body {
       <div class="pattern-list" id="patternList"></div>
     </div>
 
-    <!-- Ad hoc mode: time sig + add controls -->
-    <div class="adhoc-controls" id="adhocControls">
-      <div class="adhoc-section">
-        <div class="adhoc-section-label">Time Signature</div>
-        <select class="ts-select" id="adhocTs">
-          <option value="4/4">4/4</option>
-          <option value="3/4">3/4</option>
-          <option value="5/4">5/4</option>
-          <option value="6/4">6/4</option>
-          <option value="7/4">7/4</option>
-        </select>
-      </div>
-      <div class="adhoc-section">
-        <div class="adhoc-section-label">Build Pattern</div>
-        <div class="adhoc-action-btns">
-          <button class="adhoc-btn" id="adhocAddBeatBtn">+ Beat</button>
-          <button class="adhoc-btn" id="adhocAddMeasureBtn">+ Measure</button>
-          <button class="adhoc-btn" id="adhocClearBtn">Clear</button>
-        </div>
-      </div>
-      <div class="adhoc-section">
-        <div class="adhoc-section-label">Favourites</div>
-        <button class="adhoc-save-fav-btn" id="adhocSaveFavBtn" style="display:none">♡ &nbsp;Save to Favourites</button>
-      </div>
-      <div class="adhoc-hint">
-        <div class="adhoc-hint-text">
-          <strong>Tap cells</strong> to toggle syllables on/off.<br><br>
-          Use the <strong>16 / 3</strong> pill on each beat to switch between sixteenth and triplet subdivisions.<br><br>
-          Use <strong>+ Beat</strong> to add one beat, or <strong>+ Measure</strong> to add a full measure.<br><br>
-          <strong>Clear</strong> resets everything.
-        </div>
-      </div>
-    </div>
-
     <!-- Donate -->
     <a class="donate-btn" href="https://buymeacoffee.com/stevetakadimi" target="_blank" rel="noopener">
       <span class="donate-icon">☕</span>
@@ -1260,6 +1191,19 @@ html, body {
 
       <!-- Ad Hoc Section -->
       <div class="grid-section" id="adHocSection" style="display:none">
+        <div class="adhoc-toolbar">
+          <select class="ts-select" id="adhocTs" title="Time signature">
+            <option value="4/4">4/4</option>
+            <option value="3/4">3/4</option>
+            <option value="5/4">5/4</option>
+            <option value="6/4">6/4</option>
+            <option value="7/4">7/4</option>
+          </select>
+          <button class="adhoc-btn" id="adhocRemoveBeatBtn">− Beat</button>
+          <button class="adhoc-btn" id="adhocAddBeatBtn">+ Beat</button>
+          <button class="adhoc-btn" id="adhocAddMeasureBtn">+ Measure</button>
+          <button class="adhoc-btn adhoc-btn-clear" id="adhocClearBtn">Clear</button>
+        </div>
         <div class="grid-label">
           Rhythm Grid
           <span class="adhoc-beat-count" id="adhocBeatCount" style="margin-left:10px"></span>
@@ -2422,8 +2366,17 @@ function adhocToggleCell(beatIdx, slotIdx) {
 }
 
 function updateAdHocBeatCount() {
-  const el = document.getElementById('adhocBeatCount');
+  const el  = document.getElementById('adhocBeatCount');
   if (el) el.textContent = adHocBeats.length + ' beat' + (adHocBeats.length !== 1 ? 's' : '');
+  const rem = document.getElementById('adhocRemoveBeatBtn');
+  if (rem) rem.disabled = adHocBeats.length <= 1;
+}
+
+function adhocRemoveLastBeat() {
+  if (adHocBeats.length <= 1) return;
+  if (isPlaying) stopPlayback();
+  adHocBeats.pop();
+  renderAdHocGrid(); updateAdHocBeatCount();
 }
 
 function adhocToPattern() {
@@ -2499,7 +2452,6 @@ function setMode(mode) {
 
   // Sidebar controls
   document.getElementById('libraryControls').style.display  = adHocMode ? 'none' : 'contents';
-  document.getElementById('adhocControls').classList.toggle('visible', adHocMode);
   document.getElementById('modeLibraryBtn').classList.toggle('active', !adHocMode);
   document.getElementById('modeAdhocBtn').classList.toggle('active', adHocMode);
 
@@ -2568,6 +2520,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (tsBadge) tsBadge.textContent = adHocTs;
   });
 
+  document.getElementById('adhocRemoveBeatBtn').addEventListener('click', adhocRemoveLastBeat);
   document.getElementById('adhocAddBeatBtn').addEventListener('click',    adhocAddBeat);
   document.getElementById('adhocAddMeasureBtn').addEventListener('click', adhocAddMeasure);
   document.getElementById('adhocClearBtn').addEventListener('click',      adhocClear);
@@ -2602,19 +2555,6 @@ document.addEventListener('DOMContentLoaded', () => {
   adhocNameInput.addEventListener('keydown', e => {
     if (e.key === 'Enter')  { e.preventDefault(); adhocNameInput.blur(); }
     if (e.key === 'Escape') { adhocNameInput.value = adHocName; adhocNameInput.blur(); }
-  });
-
-  document.getElementById('adhocSaveFavBtn').addEventListener('click', () => {
-    const hasAny = adHocBeats.some(b => b.on.some(Boolean));
-    if (!hasAny) { alert('Add some notes first before saving to favourites.'); return; }
-    const label = prompt('Name this rhythm:', 'My Rhythm');
-    if (label === null) return; // cancelled
-    saveAdHocFavorite(label.trim() || 'My Rhythm', adHocBeats, adHocTs);
-    const btn = document.getElementById('adhocSaveFavBtn');
-    const orig = btn.innerHTML;
-    btn.innerHTML = '♥ &nbsp;Saved!';
-    btn.style.color = '#e05080';
-    setTimeout(() => { btn.innerHTML = orig; btn.style.color = ''; }, 1500);
   });
 
   // Replace play button with mode-aware version
