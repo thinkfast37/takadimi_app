@@ -62,6 +62,7 @@ html, body {
 .app {
   display: flex;
   height: 100vh;
+  height: 100dvh; /* dynamic viewport height — fixes iOS Safari URL-bar clipping */
   overflow: hidden;
 }
 
@@ -246,7 +247,9 @@ html, body {
 
 .content-area {
   flex: 1;
+  min-height: 0; /* prevents flex item expanding beyond parent, allows scroll */
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* smooth scroll on iOS */
   padding: 24px 28px 32px;
   scrollbar-width: thin;
   scrollbar-color: var(--border2) transparent;
@@ -956,6 +959,16 @@ html, body {
 
 @media (max-width: 400px) {
   .slot-cell { width: 30px; height: 30px; font-size: 10px; }
+}
+
+/* ── TABLET ───────────────────────────────────────────────────────────── */
+@media (min-width: 768px) and (max-width: 1100px) {
+  :root { --sidebar-w: 240px; }
+  .content-area { padding: 16px 20px 24px; }
+  .selected-name { font-size: 30px; }
+  .adhoc-name-input { font-size: 30px; }
+  .controls-row { gap: 20px; }
+  .tempo-slider { width: 140px; }
 }
 
 /* ── FAVORITES ────────────────────────────────────────────────────────── */
