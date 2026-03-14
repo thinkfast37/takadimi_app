@@ -1600,7 +1600,8 @@ function updateActiveCell(globalSlotIdx) {
 
   if (globalSlotIdx < 0) return;
 
-  const cell = document.querySelector(`.slot-cell[data-gsi="${globalSlotIdx}"]`);
+  const gridEl = document.getElementById(adHocMode ? 'adHocGrid' : 'rhythmGrid');
+  const cell = gridEl ? gridEl.querySelector(`.slot-cell[data-gsi="${globalSlotIdx}"]`) : null;
   if (cell) {
     cell.classList.add('active');
     // Activate beat number
