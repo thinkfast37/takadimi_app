@@ -2127,6 +2127,22 @@ function selectPattern(pattern) {
 }
 
 // ── TEMPO ─────────────────────────────────────────────────────────────────
+let _bpmPersistTimer = null;
+function _persistBpmToFav() {
+  clearTimeout(_bpmPersistTimer);
+  _bpmPersistTimer = setTimeout(() => {
+    if (!adHocMode && selectedPattern) {
+      const favs = loadFavorites();
+      const fav = favs.find(f => f.type === 'library' && f.name === selectedPattern.name);
+      if (fav) { fav.bpm = currentBPM; saveFavorites(favs); }
+    } else if (adHocMode && loadedFavId) {
+      const favs = loadFavorites();
+      const fav = favs.find(f => f.type === 'adhoc' && f.id === loadedFavId);
+      if (fav) { fav.bpm = currentBPM; saveFavorites(favs); }
+    }
+  }, 600);
+}
+
 function setTempo(bpm) {
   bpm = Math.max(40, Math.min(220, Math.round(bpm)));
   currentBPM = bpm;
@@ -2147,16 +2163,8 @@ function setTempo(bpm) {
     startPlayback(selectedPattern, currentBPM, countIn);
   }
 
-  // Persist new BPM into the currently-loaded favourite (if any)
-  if (!adHocMode && selectedPattern) {
-    const favs = loadFavorites();
-    const fav = favs.find(f => f.type === 'library' && f.name === selectedPattern.name);
-    if (fav) { fav.bpm = currentBPM; saveFavorites(favs); }
-  } else if (adHocMode && loadedFavId) {
-    const favs = loadFavorites();
-    const fav = favs.find(f => f.type === 'adhoc' && f.id === loadedFavId);
-    if (fav) { fav.bpm = currentBPM; saveFavorites(favs); }
-  }
+  // Persist new BPM into the currently-loaded favourite (debounced — never blocks audio scheduler)
+  _persistBpmToFav();
 }
 
 // ── SIDEBAR (mobile) ──────────────────────────────────────────────────────
