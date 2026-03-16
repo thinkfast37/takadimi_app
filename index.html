@@ -688,6 +688,19 @@ html, body {
 }
 
 /* ── DONATE BUTTON ───────────────────────────────────────────────────────── */
+.counting-wrap {
+  padding: 10px 16px 12px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.counting-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: 6px;
+}
+
 .donate-btn {
   display: flex;
   align-items: center;
@@ -1107,6 +1120,15 @@ html, body {
       <div class="pattern-list" id="patternList"></div>
     </div>
 
+    <!-- Counting system toggle -->
+    <div class="counting-wrap" id="countingWrap">
+      <div class="counting-label">Counting System</div>
+      <div class="mode-toggle">
+        <button class="mode-btn counting-btn" id="countingTakadimiBtn" data-system="takadimi">Takadimi</button>
+        <button class="mode-btn counting-btn" id="countingAndABtn"     data-system="and-a">1-e-&amp;-a</button>
+      </div>
+    </div>
+
     <!-- Donate -->
     <a class="donate-btn" href="https://buymeacoffee.com/stevetakadimi" target="_blank" rel="noopener">
       <span class="donate-icon">☕</span>
@@ -1238,36 +1260,7 @@ html, body {
         </div>
 
         <!-- Legend -->
-        <div class="legend" id="legend">
-          <div class="legend-item">
-            <div class="legend-swatch" style="color:var(--c-ta);border-color:rgba(240,160,32,0.4);background:var(--surface3)">ta</div>
-            Straight downbeat
-          </div>
-          <div class="legend-item">
-            <div class="legend-swatch" style="color:var(--c-ka);border-color:rgba(79,195,247,0.4);background:var(--surface3)">ka</div>
-            16th e (2nd slot)
-          </div>
-          <div class="legend-item">
-            <div class="legend-swatch" style="color:var(--c-di);border-color:rgba(129,199,132,0.4);background:var(--surface3)">di</div>
-            8th and (3rd slot)
-          </div>
-          <div class="legend-item">
-            <div class="legend-swatch" style="color:var(--c-mi);border-color:rgba(206,147,216,0.4);background:var(--surface3)">mi</div>
-            16th a (4th slot)
-          </div>
-          <div class="legend-item">
-            <div class="legend-swatch" style="color:var(--c-ki);border-color:rgba(77,208,225,0.4);background:var(--surface3)">ki</div>
-            Triplet 2nd
-          </div>
-          <div class="legend-item">
-            <div class="legend-swatch" style="color:var(--c-da);border-color:rgba(255,183,77,0.4);background:var(--surface3)">da</div>
-            Triplet 3rd
-          </div>
-          <div class="legend-item">
-            <div class="legend-swatch" style="color:var(--text-muted);border-color:var(--border);background:var(--surface2)"> · </div>
-            Rest
-          </div>
-        </div>
+        <div class="legend" id="legend"></div>
       </div>
 
     </div><!-- end content-area -->
@@ -1736,6 +1729,9 @@ let currentBPM      = 80;
 let searchQuery     = '';
 let activeCategory  = 'All';
 
+const COUNTING_KEY = 'takadimi_counting_system';
+let countingSystem = localStorage.getItem(COUNTING_KEY) || 'takadimi';
+
 // ══════════════════════════════════════════════════════════════════════════════
 // FAVOURITES
 // ══════════════════════════════════════════════════════════════════════════════
@@ -1939,6 +1935,39 @@ function renderCategoryFilters() {
   ).join('');
 }
 
+// ── LEGEND ────────────────────────────────────────────────────────────────
+function renderLegend() {
+  const el = document.getElementById('legend');
+  if (!el) return;
+  const sw = (label, color, borderAlpha, text) =>
+    `<div class="legend-item">` +
+    `<div class="legend-swatch" style="color:${color};border-color:${borderAlpha};background:var(--surface3)">${label}</div>` +
+    `${text}</div>`;
+  const rest =
+    `<div class="legend-item"><div class="legend-swatch" ` +
+    `style="color:var(--text-muted);border-color:var(--border);background:var(--surface2)"> · </div>Rest</div>`;
+
+  if (countingSystem === 'takadimi') {
+    el.innerHTML =
+      sw('ta',  'var(--c-ta)', 'rgba(240,160,32,0.4)',  'Straight downbeat') +
+      sw('ka',  'var(--c-ka)', 'rgba(79,195,247,0.4)',  '16th e (2nd slot)') +
+      sw('di',  'var(--c-di)', 'rgba(129,199,132,0.4)', '8th and (3rd slot)') +
+      sw('mi',  'var(--c-mi)', 'rgba(206,147,216,0.4)', '16th a (4th slot)') +
+      sw('ta',  'var(--c-ta)', 'rgba(240,160,32,0.4)',  'Triplet downbeat') +
+      sw('ki',  'var(--c-ki)', 'rgba(77,208,225,0.4)',  'Triplet 2nd') +
+      sw('da',  'var(--c-da)', 'rgba(255,183,77,0.4)',  'Triplet 3rd') +
+      rest;
+  } else {
+    el.innerHTML =
+      sw('1',   'var(--c-ta)', 'rgba(240,160,32,0.4)',  'Beat (downbeat)') +
+      sw('e',   'var(--c-ka)', 'rgba(79,195,247,0.4)',  '16th e — straight only') +
+      sw('&amp;','var(--c-di)','rgba(129,199,132,0.4)', '8th note (&amp;)') +
+      sw('a',   'var(--c-mi)', 'rgba(206,147,216,0.4)', '16th a / triplet 3rd') +
+      sw('&amp;','var(--c-ki)','rgba(77,208,225,0.4)',  'Triplet 2nd') +
+      rest;
+  }
+}
+
 // ── RENDER GRID ───────────────────────────────────────────────────────────
 function renderGrid(pattern) {
   const grid = document.getElementById('rhythmGrid');
@@ -1982,10 +2011,11 @@ function renderGrid(pattern) {
           isTrip ? 'triplet' : '',
         ].filter(Boolean).join(' ');
 
-        const display = syl ? syl : '·';
+        const label   = getSylLabel(beat.type, si, b + 1);
+        const display = hasSyl ? label : '·';
 
         html += `<div class="${classes}" data-gsi="${gsi}" data-beat-idx="${beatIdx}" data-syl="${syl||''}"
-                  title="${syl || 'rest'}">${display}</div>`;
+                  title="${hasSyl ? label : 'rest'}">${display}</div>`;
         gsi++;
       });
 
@@ -2026,7 +2056,7 @@ function selectPattern(pattern) {
   metaEl.innerHTML          = `
     <span class="badge badge-cat">${pattern.cat}</span>
     <span class="badge badge-ts">${pattern.ts}</span>`;
-  dispEl.textContent = pattern.disp;
+  dispEl.textContent = buildDisp(pattern);
 
   // Show controls + transport + grid
   document.getElementById('controlsRow').style.display  = 'flex';
@@ -2218,6 +2248,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // ── Init counting system ──────────────────────────────────────────────
+  document.querySelectorAll('.counting-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.system === countingSystem));
+  renderLegend();
+
   // ── Init tempo display ────────────────────────────────────────────────
   setTempo(80);
 
@@ -2234,6 +2269,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
 const STRAIGHT_SYLS = ['ta', 'ka', 'di', 'mi'];
 const TRIPLET_SYLS  = ['ta', 'ki', 'da'];
+
+// ── COUNTING SYSTEM HELPERS ────────────────────────────────────────────────
+// Returns the display label for a slot based on the active counting system.
+// beatType: 'S' (straight 16th) or 'T' (triplet)
+// slotIdx:  0-3 for S, 0-2 for T
+// beatNum:  1-based beat number within the measure (used for 'and-a' system)
+function getSylLabel(beatType, slotIdx, beatNum) {
+  if (countingSystem === 'takadimi') {
+    return beatType === 'S' ? STRAIGHT_SYLS[slotIdx] : TRIPLET_SYLS[slotIdx];
+  }
+  // 'and-a' system
+  if (beatType === 'S') return [String(beatNum), 'e', '&', 'a'][slotIdx];
+  return [String(beatNum), '&', 'a'][slotIdx];
+}
+
+// Generates a short readable description of a pattern using the active
+// counting system.  Any non-null slot is "active"; display label from getSylLabel.
+function buildDisp(pattern) {
+  if (!pattern || !pattern.beats || !pattern.beats.length) return '';
+  const bpMeasure = beatsPerMeasure(pattern.ts);
+  return pattern.beats.map((beat, beatIdx) => {
+    const beatNum = (beatIdx % bpMeasure) + 1;
+    const active  = beat.slots
+      .map((syl, si) => (syl !== null ? getSylLabel(beat.type, si, beatNum) : null))
+      .filter(Boolean);
+    return active.length ? active.join('·') : '—';
+  }).join(' | ');
+}
 
 let adHocMode    = false;
 let adHocTs      = '4/4';
@@ -2359,8 +2422,9 @@ function renderAdHocGrid() {
       for (let s = 0; s < syls.length; s++) {
         const isOn  = beat.on[s];
         const syl   = syls[s];
+        const label = getSylLabel(beat.type, s, b - mStart + 1);
         const cls   = 'slot-cell editable' + (isTrip ? ' triplet' : '') + (isOn ? ' on has-syllable' : '');
-        html += '<div class="' + cls + '" data-gsi="' + gsi + '" data-beat-idx="' + b + '" data-slot-idx="' + s + '" data-syl="' + (isOn?syl:'') + '" title="' + syl + '">' + (isOn ? syl : '·') + '</div>';
+        html += '<div class="' + cls + '" data-gsi="' + gsi + '" data-beat-idx="' + b + '" data-slot-idx="' + s + '" data-syl="' + (isOn?syl:'') + '" title="' + label + '">' + (isOn ? label : '·') + '</div>';
         gsi++;
       }
       html += '</div></div>'; // slots-row, beat-group
@@ -2426,7 +2490,7 @@ function setMode(mode) {
       nameEl.textContent        = selectedPattern.name;
       metaEl.innerHTML          = '<span class="badge badge-cat">' + selectedPattern.cat + '</span>'
                                 + '<span class="badge badge-ts">' + selectedPattern.ts + '</span>';
-      dispEl.textContent        = selectedPattern.disp;
+      dispEl.textContent        = buildDisp(selectedPattern);
     } else {
       emptyState.style.display  = '';
       selectedDiv.style.display = 'none';
@@ -2444,6 +2508,24 @@ function setMode(mode) {
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('modeLibraryBtn').addEventListener('click', () => setMode('library'));
   document.getElementById('modeAdhocBtn').addEventListener('click',   () => setMode('adhoc'));
+
+  // ── Counting system toggle ────────────────────────────────────────────
+  document.getElementById('countingWrap').addEventListener('click', e => {
+    const btn = e.target.closest('.counting-btn');
+    if (!btn) return;
+    countingSystem = btn.dataset.system;
+    localStorage.setItem(COUNTING_KEY, countingSystem);
+    document.querySelectorAll('.counting-btn').forEach(b =>
+      b.classList.toggle('active', b.dataset.system === countingSystem));
+    renderLegend();
+    if (adHocMode) {
+      renderAdHocGrid();
+    } else if (selectedPattern) {
+      renderGrid(selectedPattern);
+      const dispEl = document.getElementById('selectedDisplay');
+      if (dispEl) dispEl.textContent = buildDisp(selectedPattern);
+    }
+  });
 
   document.getElementById('adhocTs').addEventListener('change', e => {
     adHocTs     = e.target.value;
