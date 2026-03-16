@@ -1888,7 +1888,7 @@ function getFavouritePatterns() {
   favs.forEach(f => {
     if (f.type === 'library') {
       const p = PATTERNS.find(p => p.name === f.name);
-      if (p) results.push({ ...p, _favBpm: f.bpm || 80 });
+      if (p) results.push(p);
     } else if (f.type === 'adhoc') {
       results.push({
         name:        f.label,
