@@ -29,20 +29,50 @@ Students select or build rhythm patterns, set a tempo, and hear the syllables pl
 | Web app | https://github.com/thinkfast37/takadimi_app | The practice web UI (this repo) |
 | Video scripts | https://github.com/thinkfast37/takadimi_project | Python scripts for generating practice videos |
 
-The web app is hosted on GitHub Pages. The single deployable file is `index.html`.
+The web app is hosted on GitHub Pages. The entry point is `index.html` which loads CSS and JS from separate files.
 
 ---
 
 ## Web App — File Structure
 
-The entire web application is a **single file: `index.html`**. There is no build process, no backend, no dependencies except Google Fonts. It runs entirely in the browser.
+The web application has been modularized into multiple files. There is no build process, no backend, no dependencies except Google Fonts. It runs entirely in the browser.
 
-### Sections inside index.html (in order):
+```
+takadimi_app/
+  index.html          ← HTML structure only; loads CSS + JS externally
+  css/
+    styles.css        ← All CSS styles
+  js/
+    patterns.js       ← Pattern data (PATTERNS array) + data helpers
+    state.js          ← Shared mutable state variables + favourites + filter logic
+    audio.js          ← Web Audio API engine + lookahead scheduler
+    ui.js             ← Rendering functions + selectPattern + tempo + sidebar
+    adhoc.js          ← Ad hoc mode: grid editing, beat management, setMode
+    midi.js           ← MIDI file builder + download
+    events.js         ← DOMContentLoaded event binding (both initialization blocks)
+```
 
-1. **`<head>`** — Google Fonts imports (Bebas Neue, JetBrains Mono, DM Sans)
-2. **`<style>`** — All CSS, organized with section comments
-3. **`<body>`** — Two-panel layout: sidebar + main panel
-4. **`<script>`** — All JavaScript, organized with section comments
+### index.html sections (in order):
+
+1. **`<head>`** — Google Fonts imports + `<link rel="stylesheet" href="css/styles.css">`
+2. **`<body>`** — Two-panel layout: sidebar + main panel (HTML structure only, no inline CSS or JS)
+3. **Script tags** — Seven `<script src="js/...">` tags in dependency order
+
+### JavaScript load order and dependency rules
+
+Scripts are loaded as plain (non-module) `<script>` tags, so they share the global `window` scope. Load order is critical:
+
+| File | Depends on |
+|------|-----------|
+| `js/patterns.js` | nothing |
+| `js/state.js` | `patterns.js` (PATTERNS, adHocBeatsToSlots) |
+| `js/audio.js` | `state.js` (adHocMode — read at runtime only) |
+| `js/ui.js` | `patterns.js`, `state.js`, `audio.js` |
+| `js/adhoc.js` | `state.js`, `audio.js`, `ui.js` |
+| `js/midi.js` | `state.js`, `adhoc.js` |
+| `js/events.js` | everything above |
+
+**Cross-file variable access**: Shared mutable state is declared with `var` in `state.js` so it is accessible as a global from all subsequent scripts. Functions that reference globals from later-loaded files (e.g. `audio.js` uses `adHocMode` declared in `state.js`) work because those globals are initialised before any user interaction triggers the function.
 
 ---
 
@@ -55,12 +85,17 @@ The entire web application is a **single file: `index.html`**. There is no build
 - **Breakpoint**: `767px` — below this is mobile layout
 - **Mobile**: Sidebar becomes a fixed drawer, hidden by default, opens via hamburger button. On page load, sidebar auto-opens on mobile.
 
-### JavaScript Sections
-1. **PATTERN DATA** — The `PATTERNS` array (the entire pattern library)
-2. **AUDIO ENGINE** — Web Audio API synthesizer + lookahead scheduler
-3. **UI STATE** — Selected pattern, BPM, search query, category filter
-4. **EVENT BINDING** — All DOM event listeners
-5. **AD HOC MODE** — Ad hoc grid state, rendering, mode switching
+### JavaScript Modules
+
+| File | Responsibility |
+|------|---------------|
+| `js/patterns.js` | `PATTERNS` array; compact helpers (`_`, `ta`…`da`, `S`, `T`); `STRAIGHT_SYLS`, `TRIPLET_SYLS`; `adHocBeatsToSlots()` |
+| `js/state.js` | All shared `var` globals (`selectedPattern`, `currentBPM`, `adHocMode`, `adHocBeats`, etc.); counting system; favourites CRUD (`loadFavorites`, `saveFavorites`, `toggleLibraryFavorite`, `saveAdHocFavorite`, etc.); `getCategories()`, `getFiltered()`, `beatsPerMeasure()` |
+| `js/audio.js` | `audioCtx`, `unlockAudio()`, `playClick()`, `playSyllable()`; lookahead scheduler; `flattenPattern()`, `buildCountIn()`; `startPlayback()`, `stopPlayback()`; visual sync loop (`updateActiveCell()`) |
+| `js/ui.js` | `getSylLabel()`, `buildDisp()`; `renderPatternList()`, `renderCategoryFilters()`, `renderLegend()`, `renderGrid()`; `updateFavoriteIndicator()`; `selectPattern()`; `setTempo()`, `_persistBpmToFav()`; `openSidebar()`, `closeSidebar()` |
+| `js/adhoc.js` | Ad hoc beat state management (`adhocAddBeat()`, `adhocClear()`, etc.); `renderAdHocGrid()`; `loadAdHocFavourite()`; `setMode()` (switches between Library and Ad Hoc UI) |
+| `js/midi.js` | `buildMidi()` (constructs binary MIDI format 0 file); `downloadMidi()` |
+| `js/events.js` | Two `DOMContentLoaded` blocks: (1) library mode event binding + init; (2) ad hoc controls + mode-aware play button replacement + MIDI button |
 
 ---
 
@@ -227,7 +262,7 @@ Allows students to build custom patterns by clicking cells on an editable grid.
 
 1. **No layout shift between modes** — the pattern info block (name, badges, description) is always visible and populated in both library and ad hoc modes
 2. **Free tempo slider** (40–220 BPM) with 6 preset buttons for the original video tempos (57, 67, 80, 90, 104, 120)
-3. **No audio files** — everything synthesized. This keeps the app a single HTML file
+3. **No audio files** — everything synthesized. No build process needed.
 4. **Tempo changes during playback** restart playback immediately at the new tempo
 5. **Mobile sidebar auto-opens** on page load (width < 768px) since users can't do anything without it
 6. **Pattern extensibility** — adding patterns only requires appending to the `PATTERNS` array. No other code changes needed.
@@ -246,9 +281,10 @@ Buy Me a Coffee link is embedded in the sidebar footer:
 
 - The audio engine scheduler architecture (lookahead + AudioContext timing)
 - The iOS audio unlock strategy (silent buffer on touchstart)
-- The overall single-file architecture
+- The multi-file architecture and JS load order
 - The CSS design system colors/fonts
 - The pattern data format (S/T/slots structure)
+- The shared-global approach for cross-file state (var declarations in state.js)
 - Song Signatures patterns — these are being carefully corrected by the owner and should not be auto-generated or modified without explicit instruction
 
 ---
@@ -267,9 +303,17 @@ Buy Me a Coffee link is embedded in the sidebar footer:
 
 | File | Repo | Purpose |
 |------|------|---------|
-| `index.html` | takadimi_app | The entire web application |
-| `patterns.py` | takadimi_project | Pattern definitions for video generation (must stay in sync with index.html patterns) |
+| `index.html` | takadimi_app | HTML structure; loads external CSS + JS |
+| `css/styles.css` | takadimi_app | All application styles |
+| `js/patterns.js` | takadimi_app | Pattern library data |
+| `js/state.js` | takadimi_app | Shared state, favourites, filtering |
+| `js/audio.js` | takadimi_app | Web Audio engine + scheduler |
+| `js/ui.js` | takadimi_app | Rendering + controls |
+| `js/adhoc.js` | takadimi_app | Ad hoc mode logic |
+| `js/midi.js` | takadimi_app | MIDI export |
+| `js/events.js` | takadimi_app | Event binding + initialization |
+| `patterns.py` | takadimi_project | Pattern definitions for video generation (must stay in sync with js/patterns.js) |
 | `generate_videos.py` | takadimi_project | Video rendering script |
 | `youtube_metadata.csv` | takadimi_project | YouTube upload metadata |
 
-**Important**: When patterns are added or corrected in `index.html`, the same changes must be made to `patterns.py` in the video scripts repo to keep them in sync.
+**Important**: When patterns are added or corrected in `js/patterns.js`, the same changes must be made to `patterns.py` in the video scripts repo to keep them in sync.
