@@ -13,6 +13,21 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('patternList').addEventListener('click', e => {
     const item = e.target.closest('.pattern-item');
     if (!item) return;
+
+    // Combine mode: show confirmation instead of selecting
+    if (combineMode) {
+      let pattern = null;
+      if (item.dataset.favId) {
+        const favs = loadFavorites();
+        const fav  = favs.find(f => f.type === 'adhoc' && f.id === item.dataset.favId);
+        if (fav) pattern = { name: fav.label, cat: 'Ad Hoc', ts: fav.ts, beats: adHocBeatsToSlots(fav.beats) };
+      } else {
+        pattern = PATTERNS[+item.dataset.idx];
+      }
+      if (pattern) combineConfirmShow(pattern);
+      return;
+    }
+
     // Ad hoc favourite: load into ad hoc mode
     if (item.dataset.favId) {
       const favs = loadFavorites();
@@ -230,6 +245,15 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.getElementById('midiBtn').addEventListener('click', downloadMidi);
+
+  // ── Combine mode ──────────────────────────────────────────────────────
+  document.getElementById('addPatternBtn').addEventListener('click', combineEnter);
+  document.getElementById('combineCancelBtn').addEventListener('click', combineExit);
+  document.getElementById('combineConfirmYes').addEventListener('click', combineConfirmAdd);
+  document.getElementById('combineConfirmNo').addEventListener('click', () => {
+    combinePendingPattern = null;
+    document.getElementById('combineConfirmOverlay').style.display = 'none';
+  });
 
   // ── Ad hoc code export ────────────────────────────────────────────────
   document.getElementById('adhocCodeBtn').addEventListener('click', () => {

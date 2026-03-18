@@ -240,3 +240,118 @@ function setMode(mode) {
     updateAdHocBeatCount();
   }
 }
+
+// ══════════════════════════════════════════════════════════════════════════════
+// COMBINE MODE
+// ══════════════════════════════════════════════════════════════════════════════
+
+function combinePatternToAdHocBeats(pattern) {
+  return pattern.beats.map(b => ({
+    type: b.type,
+    on:   b.slots.map(s => s !== null)
+  }));
+}
+
+function combineBestTs(totalBeats, originalTs) {
+  const origN = parseInt(originalTs.split('/')[0]);
+  if (totalBeats % origN === 0) return originalTs;
+  for (const n of [4, 3, 6, 5, 7]) {
+    if (totalBeats % n === 0) return n + '/4';
+  }
+  return originalTs; // fallback — keep original even if not exact
+}
+
+function updateCombineBanner() {
+  const textEl = document.getElementById('combineBannerText');
+  if (!textEl) return;
+  textEl.textContent = combineAddedCount === 0
+    ? 'Select a pattern to add'
+    : combineAddedCount + ' pattern' + (combineAddedCount !== 1 ? 's' : '') + ' added — keep selecting or cancel to finish';
+}
+
+function combineEnter() {
+  if (combineMode) return;
+  if (!adHocMode && !selectedPattern) return;
+
+  combinePrevMode    = adHocMode ? 'adhoc' : 'library';
+  combinePrevPattern = selectedPattern;
+  combineMode        = true;
+  combineAddedCount  = 0;
+
+  if (!adHocMode) {
+    // Capture library pattern as ad hoc workspace
+    adHocTs     = selectedPattern.ts;
+    adHocBeats  = combinePatternToAdHocBeats(selectedPattern);
+    adHocName   = selectedPattern.name;
+    loadedFavId = null;
+  }
+
+  // Force library controls visible for browsing
+  document.getElementById('libraryControls').style.display = 'contents';
+  document.getElementById('combineBanner').style.display   = 'flex';
+  document.getElementById('addPatternBtn').style.display   = 'none';
+  updateCombineBanner();
+  openSidebar();
+}
+
+function combineExit() {
+  const added   = combineAddedCount;
+  combineMode   = false;
+  combineAddedCount = 0;
+
+  document.getElementById('combineBanner').style.display        = 'none';
+  document.getElementById('addPatternBtn').style.display        = '';
+  document.getElementById('combineConfirmOverlay').style.display = 'none';
+
+  if (added === 0) {
+    // Nothing was added — restore previous state
+    if (combinePrevMode === 'library') {
+      adHocBeats = [];
+      adHocName  = 'My Rhythm';
+      adHocTs    = '4/4';
+      if (combinePrevPattern) selectPattern(combinePrevPattern);
+    } else {
+      // Was already in ad hoc — re-hide library controls
+      document.getElementById('libraryControls').style.display = 'none';
+    }
+  } else {
+    combineFinalize();
+  }
+}
+
+function combineFinalize() {
+  // Recalculate time signature if total beats no longer fits
+  adHocTs = combineBestTs(adHocBeats.length, adHocTs);
+
+  // Sync ts dropdown
+  const tsSelect = document.getElementById('adhocTs');
+  if (tsSelect) tsSelect.value = adHocTs;
+
+  loadedFavId = null;
+  setMode('adhoc');
+  renderAdHocGrid();
+  updateAdHocBeatCount();
+
+  // Focus the rhythm name edit field so user can rename before saving
+  setTimeout(() => { document.getElementById('nameEditBtn').click(); }, 80);
+}
+
+function combineConfirmShow(pattern) {
+  combinePendingPattern = pattern;
+  document.getElementById('combineConfirmName').textContent = pattern.name;
+  document.getElementById('combineConfirmMeta').innerHTML =
+    '<span class="badge badge-cat">' + pattern.cat + '</span> ' +
+    '<span class="badge badge-ts">'  + pattern.ts  + '</span> ' +
+    '<span class="combine-confirm-beats">' + pattern.beats.length +
+    ' beat' + (pattern.beats.length !== 1 ? 's' : '') + '</span>';
+  document.getElementById('combineConfirmOverlay').style.display = 'flex';
+}
+
+function combineConfirmAdd() {
+  if (!combinePendingPattern) return;
+  adHocBeats = adHocBeats.concat(combinePatternToAdHocBeats(combinePendingPattern));
+  combineAddedCount++;
+  combinePendingPattern = null;
+  document.getElementById('combineConfirmOverlay').style.display = 'none';
+  updateCombineBanner();
+}
