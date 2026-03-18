@@ -231,6 +231,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('midiBtn').addEventListener('click', downloadMidi);
 
+  // ── Ad hoc code export ────────────────────────────────────────────────
+  document.getElementById('adhocCodeBtn').addEventListener('click', () => {
+    document.getElementById('codeModalPre').textContent = adhocToCode();
+    document.getElementById('codeModalCopy').textContent = 'Copy to clipboard';
+    document.getElementById('codeModalOverlay').style.display = 'flex';
+  });
+  document.getElementById('codeModalClose').addEventListener('click', () => {
+    document.getElementById('codeModalOverlay').style.display = 'none';
+  });
+  document.getElementById('codeModalOverlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('codeModalOverlay'))
+      document.getElementById('codeModalOverlay').style.display = 'none';
+  });
+  document.getElementById('codeModalCopy').addEventListener('click', () => {
+    const code = document.getElementById('codeModalPre').textContent;
+    navigator.clipboard.writeText(code).then(() => {
+      const btn = document.getElementById('codeModalCopy');
+      btn.textContent = 'Copied!';
+      setTimeout(() => { btn.textContent = 'Copy to clipboard'; }, 2000);
+    });
+  });
+
   document.addEventListener('keydown', e => {
     if (e.code === 'Space' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'SELECT') {
       e.preventDefault(); newBtn.click();

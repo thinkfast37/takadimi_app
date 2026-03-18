@@ -823,6 +823,7 @@ html, body {
 .adhoc-btn:hover { border-color: var(--amber-dim); color: var(--amber); background: var(--surface3); }
 .adhoc-btn:disabled { opacity: 0.3; cursor: default; pointer-events: none; }
 .adhoc-btn-clear { margin-left: auto; }
+.adhoc-btn-code  { font-family: var(--font-mono); letter-spacing: 0; }
 
 /* ── AD HOC GRID (editable) ──────────────────────────────────────────────── */
 .adhoc-grid-header {
@@ -1078,3 +1079,81 @@ html, body {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+
+/* ── CODE EXPORT MODAL ───────────────────────────────────────────────────── */
+.code-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+.code-modal {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: calc(var(--radius) * 2);
+  width: 100%;
+  max-width: 560px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 24px 48px rgba(0,0,0,0.5);
+}
+.code-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.code-modal-title {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--amber);
+}
+.code-modal-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 20px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 2px;
+  transition: color var(--trans);
+}
+.code-modal-close:hover { color: var(--text); }
+.code-modal-pre {
+  flex: 1;
+  overflow: auto;
+  margin: 0;
+  padding: 16px 18px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text);
+  white-space: pre;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+.code-modal-copy {
+  margin: 14px 18px;
+  padding: 9px 20px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  color: var(--text-dim);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  align-self: flex-end;
+  transition: all var(--trans);
+}
+.code-modal-copy:hover { border-color: var(--amber-dim); color: var(--amber); background: var(--surface3); }
