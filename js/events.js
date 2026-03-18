@@ -79,6 +79,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // ── Star rating ──────────────────────────────────────────────────────
+  document.getElementById('starRating').addEventListener('click', e => {
+    const btn = e.target.closest('.star-btn');
+    if (!btn) return;
+
+    let key = null;
+    if (!adHocMode && selectedPattern) {
+      key = 'lib:' + selectedPattern.name;
+    } else if (adHocMode && loadedFavId) {
+      key = 'adhoc:' + loadedFavId;
+    }
+    if (!key) return;
+
+    const star    = +btn.dataset.star;
+    const current = getRating(key);
+    setRating(key, current === star ? 0 : star); // tap same star = clear
+    updateStarRating();
+    renderPatternList(); // re-sort list
+  });
+
   // ── Search ────────────────────────────────────────────────────────────
   document.getElementById('searchInput').addEventListener('input', e => {
     searchQuery = e.target.value;
