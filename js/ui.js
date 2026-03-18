@@ -275,6 +275,10 @@ function selectPattern(pattern) {
 
   selectedPattern = pattern;
 
+  // Apply tempo: use favourite's saved BPM if present, otherwise the pattern's own default
+  const libFav = loadFavorites().find(f => f.type === 'library' && f.name === pattern.name);
+  setTempo(libFav?.bpm || pattern.bpm);
+
   // Update info section
   const emptyState  = document.getElementById('emptyState');
   const selectedDiv = document.getElementById('selectedInfo');

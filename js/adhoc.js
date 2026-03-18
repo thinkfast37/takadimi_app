@@ -90,6 +90,7 @@ function adhocToCode() {
        + '  cat:  "Category Name",\n'
        + '  disp: "",\n'
        + '  ts:   "' + adHocTs + '",\n'
+       + '  bpm:  ' + currentBPM + ',\n'
        + '  beats: [\n'
        + beatLines.join(',\n') + ',\n'
        + '  ]\n'

@@ -359,8 +359,11 @@ html, body {
   text-align: center;
   outline: none;
   transition: border-color var(--trans);
+  -moz-appearance: textfield;
 }
 .tempo-num:focus { border-color: var(--amber); }
+.tempo-num::-webkit-outer-spin-button,
+.tempo-num::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
 .bpm-label {
   font-size: 11px;
