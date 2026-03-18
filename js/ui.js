@@ -47,6 +47,8 @@ function renderPatternList() {
 
   listEl.innerHTML = filtered.map((p) => {
     const nBeats = p.beats.length;
+    const rating = getRating(patternRatingKey(p));
+    const starsHtml = rating > 0 ? `<span class="p-rating">${'★'.repeat(rating)}</span>` : '';
     if (p._isFavAdHoc) {
       return `
         <div class="pattern-item" data-fav-id="${p._favId}" role="button" tabindex="0"
@@ -57,6 +59,7 @@ function renderPatternList() {
               <span class="p-cat">Ad Hoc</span>
               <span class="p-ts">${p.ts}</span>
               <span class="p-hits">${nBeats} beat${nBeats !== 1 ? 's' : ''}</span>
+              ${starsHtml}
             </div>
           </div>
         </div>`;
@@ -70,6 +73,7 @@ function renderPatternList() {
           <span class="p-cat">${p.cat}</span>
           <span class="p-ts">${p.ts}</span>
           <span class="p-hits">${nBeats} beat${nBeats !== 1 ? 's' : ''}</span>
+          ${starsHtml}
         </div>
       </div>`;
   }).join('');
@@ -190,8 +194,30 @@ function renderGrid(pattern) {
   grid.innerHTML = html;
 }
 
+// ── STAR RATING INDICATOR ─────────────────────────────────────────────────
+function updateStarRating() {
+  const el = document.getElementById('starRating');
+  if (!el) return;
+
+  let key = null;
+  if (!adHocMode && selectedPattern) {
+    key = 'lib:' + selectedPattern.name;
+  } else if (adHocMode && loadedFavId) {
+    key = 'adhoc:' + loadedFavId;
+  }
+
+  el.style.display = key ? 'flex' : 'none';
+  if (!key) return;
+
+  const rating = getRating(key);
+  el.querySelectorAll('.star-btn').forEach(btn => {
+    btn.classList.toggle('filled', +btn.dataset.star <= rating);
+  });
+}
+
 // ── FAVOURITE INDICATOR ────────────────────────────────────────────────────
 function updateFavoriteIndicator() {
+  updateStarRating();
   const btn = document.getElementById('favBtn');
   if (!btn) return;
   if (adHocMode) {
@@ -239,6 +265,7 @@ function selectPattern(pattern) {
   renderGrid(pattern);
   renderPatternList(); // update selected state in list
   updateFavoriteIndicator();
+  updateStarRating();
 
   // Close sidebar on mobile
   if (window.innerWidth < 768) closeSidebar();

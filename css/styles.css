@@ -1067,6 +1067,37 @@ html, body {
 }
 .adhoc-save-fav-btn:hover { border-color: #c04060; color: #e05080; background: var(--surface3); }
 
+/* ── STAR RATING ──────────────────────────────────────────────────────── */
+.star-rating {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  flex-shrink: 0;
+}
+
+.star-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--border2);
+  padding: 2px 3px;
+  transition: color var(--trans), transform 0.1s ease;
+  user-select: none;
+  flex-shrink: 0;
+}
+.star-btn:hover { color: var(--amber); transform: scale(1.15); }
+.star-btn.filled { color: var(--amber); }
+
+/* Small star indicator in pattern list */
+.p-rating {
+  color: var(--amber);
+  font-size: 10px;
+  letter-spacing: -1px;
+  line-height: 1;
+}
+
 /* ── PAGE LOAD ANIMATION ──────────────────────────────────────────────── */
 @media (min-width: 768px) {
   .sidebar { animation: slide-in-left 0.4s cubic-bezier(0.2,0,0,1) both; }

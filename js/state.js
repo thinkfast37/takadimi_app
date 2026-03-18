@@ -101,7 +101,40 @@ function getFavouritePatterns() {
       });
     }
   });
-  return results;
+  return results.sort((a, b) => getRating(patternRatingKey(b)) - getRating(patternRatingKey(a)));
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// RATINGS
+// Stored as { key: stars } where key = 'lib:PatternName' or 'adhoc:favId'
+// ══════════════════════════════════════════════════════════════════════════════
+const RATINGS_KEY = 'takadimi_ratings';
+
+function loadRatings() {
+  try { return JSON.parse(localStorage.getItem(RATINGS_KEY) || '{}'); }
+  catch { return {}; }
+}
+
+function saveRatings(ratings) {
+  try { localStorage.setItem(RATINGS_KEY, JSON.stringify(ratings)); }
+  catch {}
+}
+
+function getRating(key) {
+  return loadRatings()[key] || 0;
+}
+
+function setRating(key, stars) {
+  const ratings = loadRatings();
+  if (stars === 0) delete ratings[key];
+  else ratings[key] = stars;
+  saveRatings(ratings);
+}
+
+// Returns the localStorage key for rating a given pattern object
+function patternRatingKey(p) {
+  if (p._isFavAdHoc) return 'adhoc:' + p._favId;
+  return 'lib:' + p.name;
 }
 
 // ── CATEGORIES ────────────────────────────────────────────────────────────
@@ -122,7 +155,7 @@ function getFiltered() {
     return p.name.toLowerCase().includes(q) ||
            p.cat.toLowerCase().includes(q) ||
            p.disp.toLowerCase().includes(q);
-  });
+  }).sort((a, b) => getRating(patternRatingKey(b)) - getRating(patternRatingKey(a)));
 }
 
 // ── MEASURES PER PATTERN ──────────────────────────────────────────────────
