@@ -262,17 +262,23 @@ function combineBestTs(totalBeats, originalTs) {
 }
 
 function updateCombineBanner() {
-  const textEl = document.getElementById('combineBannerText');
+  const textEl    = document.getElementById('combineBannerText');
+  const cancelBtn = document.getElementById('combineCancelBtn');
   if (!textEl) return;
-  textEl.textContent = combineAddedCount === 0
-    ? 'Select a pattern to add'
-    : combineAddedCount + ' pattern' + (combineAddedCount !== 1 ? 's' : '') + ' added — keep selecting or cancel to finish';
+  if (combineAddedCount === 0) {
+    textEl.textContent    = 'Select a pattern to add';
+    cancelBtn.textContent = '✕ Cancel';
+  } else {
+    textEl.textContent    = combineAddedCount + ' pattern' + (combineAddedCount !== 1 ? 's' : '') + ' added — keep selecting or finish';
+    cancelBtn.textContent = '✓ Finish';
+  }
 }
 
 function combineEnter() {
   if (combineMode) return;
   if (!adHocMode && !selectedPattern) return;
 
+  const wasPlaying   = isPlaying;
   combinePrevMode    = adHocMode ? 'adhoc' : 'library';
   combinePrevPattern = selectedPattern;
   combineMode        = true;
@@ -286,7 +292,15 @@ function combineEnter() {
     loadedFavId = null;
   }
 
-  // Force library controls visible for browsing
+  // Switch main window to ad hoc view immediately so changes are visible
+  setMode('adhoc');
+  renderAdHocGrid();
+  updateAdHocBeatCount();
+
+  // Restore playback if it was running (setMode stops it); no count-in
+  if (wasPlaying) startPlayback(adhocToPattern(), currentBPM, false);
+
+  // Re-show library controls for browsing (setMode('adhoc') hides them)
   document.getElementById('libraryControls').style.display = 'contents';
   document.getElementById('combineBanner').style.display   = 'flex';
   document.getElementById('addPatternBtn').style.display   = 'none';
@@ -311,7 +325,9 @@ function combineExit() {
       adHocBeats = [];
       adHocName  = 'My Rhythm';
       adHocTs    = '4/4';
-      if (combinePrevPattern) selectPattern(combinePrevPattern);
+      // We entered ad hoc mode in combineEnter, so switch back to library
+      setMode('library');
+      if (combinePrevPattern) renderGrid(combinePrevPattern);
     } else {
       // Was already in ad hoc — re-hide library controls
       document.getElementById('libraryControls').style.display = 'none';
@@ -325,11 +341,12 @@ function combineFinalize() {
   // Recalculate time signature if total beats no longer fits
   adHocTs = combineBestTs(adHocBeats.length, adHocTs);
 
-  // Sync ts dropdown
+  // Sync ts dropdown and badge
   const tsSelect = document.getElementById('adhocTs');
   if (tsSelect) tsSelect.value = adHocTs;
 
   loadedFavId = null;
+  // setMode re-hides library controls and re-syncs all info block fields
   setMode('adhoc');
   renderAdHocGrid();
   updateAdHocBeatCount();
@@ -358,5 +375,14 @@ function combineConfirmAdd() {
   combineAddedCount++;
   combinePendingPattern = null;
   document.getElementById('combineConfirmOverlay').style.display = 'none';
+
+  // Immediately show the updated pattern in the main window
+  renderAdHocGrid();
+  updateAdHocBeatCount();
+
+  // Always restart playback with the new combined pattern; no count-in
+  if (isPlaying) stopPlayback();
+  startPlayback(adhocToPattern(), currentBPM, false);
+
   updateCombineBanner();
 }
