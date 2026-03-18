@@ -291,7 +291,9 @@ function combineEnter() {
   document.getElementById('combineBanner').style.display   = 'flex';
   document.getElementById('addPatternBtn').style.display   = 'none';
   updateCombineBanner();
-  openSidebar();
+  // On mobile the sidebar is a drawer — open it. On desktop it's always visible,
+  // so skip openSidebar() to avoid the overlay darkening the main panel.
+  if (window.innerWidth < 768) openSidebar();
 }
 
 function combineExit() {
@@ -331,6 +333,9 @@ function combineFinalize() {
   setMode('adhoc');
   renderAdHocGrid();
   updateAdHocBeatCount();
+
+  // Remove overlay and close mobile drawer so the main panel has focus
+  closeSidebar();
 
   // Focus the rhythm name edit field so user can rename before saving
   setTimeout(() => { document.getElementById('nameEditBtn').click(); }, 80);
