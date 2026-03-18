@@ -959,6 +959,13 @@ html, body {
   .slot-cell { width: 36px; height: 36px; font-size: 11px; }
 
   .play-btn { padding: 12px 24px; font-size: 20px; }
+
+  /* Grid: wrap beats 2-per-row so the measure fits without horizontal scrolling */
+  .grid-outer { overflow-x: visible; }
+  .rhythm-grid { min-width: 0; }
+  .beats-row { flex-wrap: wrap; row-gap: 10px; }
+  .beat-sep { display: none; }
+  .beat-group { flex: 0 0 calc(50% - 3px); }
 }
 
 @media (max-width: 400px) {
