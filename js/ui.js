@@ -236,6 +236,39 @@ function updateFavoriteIndicator() {
   btn.classList.toggle('favorited', isFav);
 }
 
+// ── PATTERN NAVIGATION ───────────────────────────────────────────────────
+// Library-only filtered list used for prev/next navigation
+function getNavList() {
+  return getFiltered().filter(p => !p._isFavAdHoc);
+}
+
+function updateNavButtons() {
+  const row     = document.getElementById('patternNavRow');
+  const prevBtn = document.getElementById('prevPatternBtn');
+  const nextBtn = document.getElementById('nextPatternBtn');
+  const posEl   = document.getElementById('patternNavPos');
+  if (!row) return;
+
+  if (adHocMode || !selectedPattern) { row.style.display = 'none'; return; }
+
+  const list = getNavList();
+  const idx  = list.indexOf(selectedPattern);
+
+  if (idx === -1 || list.length <= 1) { row.style.display = 'none'; return; }
+
+  row.style.display = 'flex';
+  prevBtn.disabled  = idx === 0;
+  nextBtn.disabled  = idx === list.length - 1;
+  posEl.textContent = `${idx + 1} / ${list.length}`;
+}
+
+function navigatePattern(dir) {
+  if (adHocMode || !selectedPattern) return;
+  const list = getNavList();
+  const next = list[list.indexOf(selectedPattern) + dir];
+  if (next) selectPattern(next);
+}
+
 // ── SELECT PATTERN ────────────────────────────────────────────────────────
 function selectPattern(pattern) {
   if (isPlaying) stopPlayback();
@@ -266,6 +299,7 @@ function selectPattern(pattern) {
   renderPatternList(); // update selected state in list
   updateFavoriteIndicator();
   updateStarRating();
+  updateNavButtons();
 
   // Close sidebar on mobile
   if (window.innerWidth < 768) closeSidebar();

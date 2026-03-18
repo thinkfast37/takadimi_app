@@ -1105,6 +1105,40 @@ html, body {
   line-height: 1;
 }
 
+/* ── PATTERN NAVIGATION ─────────────────────────────────────────────── */
+.pattern-nav-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+.pattern-nav-btn {
+  background: none;
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  color: var(--text-dim);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 12px;
+  cursor: pointer;
+  transition: all var(--trans);
+  white-space: nowrap;
+}
+.pattern-nav-btn:hover:not(:disabled) {
+  color: var(--amber);
+  border-color: var(--amber-dim);
+  background: var(--amber-glow2);
+}
+.pattern-nav-btn:disabled { opacity: 0.25; cursor: default; }
+.pattern-nav-pos {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  flex: 1;
+  text-align: center;
+}
+
 /* ── PAGE LOAD ANIMATION ──────────────────────────────────────────────── */
 @media (min-width: 768px) {
   .sidebar { animation: slide-in-left 0.4s cubic-bezier(0.2,0,0,1) both; }

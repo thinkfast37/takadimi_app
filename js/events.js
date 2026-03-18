@@ -97,12 +97,14 @@ document.addEventListener('DOMContentLoaded', () => {
     setRating(key, current === star ? 0 : star); // tap same star = clear
     updateStarRating();
     renderPatternList(); // re-sort list
+    updateNavButtons();  // re-sort affects position
   });
 
   // ── Search ────────────────────────────────────────────────────────────
   document.getElementById('searchInput').addEventListener('input', e => {
     searchQuery = e.target.value;
     renderPatternList();
+    updateNavButtons();
   });
 
   // ── Category filters ──────────────────────────────────────────────────
@@ -112,6 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
     activeCategory = btn.dataset.cat;
     renderCategoryFilters();
     renderPatternList();
+    updateNavButtons();
   });
 
   // ── Tempo slider ──────────────────────────────────────────────────────
@@ -265,6 +268,10 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.getElementById('midiBtn').addEventListener('click', downloadMidi);
+
+  // ── Pattern prev / next navigation ────────────────────────────────────
+  document.getElementById('prevPatternBtn').addEventListener('click', () => navigatePattern(-1));
+  document.getElementById('nextPatternBtn').addEventListener('click', () => navigatePattern(1));
 
   // ── Combine mode ──────────────────────────────────────────────────────
   document.getElementById('addPatternBtn').addEventListener('click', combineEnter);
