@@ -1013,8 +1013,9 @@ html, body {
 .name-edit-btn:hover { color: var(--amber); }
 
 .selected-name.adhoc-name {
+  color: var(--amber);
   cursor: pointer;
-  border-bottom: 1.5px dashed var(--text-muted);
+  border-bottom: 1.5px dashed var(--amber-dim);
   padding-bottom: 2px;
 }
 .selected-name.adhoc-name:hover { border-bottom-color: var(--amber); }
@@ -1023,6 +1024,7 @@ html, body {
   font-family: var(--font-display);
   font-size: 38px;
   letter-spacing: 0.04em;
+  color: var(--amber);
   color: var(--text);
   background: transparent;
   border: none;
