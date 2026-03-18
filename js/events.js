@@ -45,11 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     // Library pattern
     const idx = +item.dataset.idx;
-    const p = PATTERNS[idx];
-    selectPattern(p);
-    // Apply saved BPM if this pattern is a favourite
-    const libFav = loadFavorites().find(f => f.type === 'library' && f.name === p.name);
-    if (libFav) setTempo(libFav.bpm || 80);
+    selectPattern(PATTERNS[idx]);
   });
 
   document.getElementById('patternList').addEventListener('keydown', e => {
@@ -230,7 +226,8 @@ document.addEventListener('DOMContentLoaded', () => {
   function finishAdHocNameEdit() {
     const nameEl = document.getElementById('selectedName');
     const input  = document.getElementById('adhocNameInput');
-    adHocName = input.value.trim() || 'My Rhythm';
+    const raw = input.value.trim() || 'My Rhythm';
+    adHocName = raw.replace(/\b\w/g, c => c.toUpperCase());
     nameEl.textContent   = adHocName;
     input.style.display  = 'none';
     nameEl.style.display = '';

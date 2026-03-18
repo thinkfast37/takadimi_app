@@ -169,4 +169,25 @@ const PATTERNS = [
     beats:[S(ta,_,_,_),S(ta,_,_,_),S(ta,_,_,_),S(_,_,_,mi),
            S(ta,_,di,_),S(ta,_,di,mi),S(_,_,_,_),S(_,_,di,mi)]
   },
+  {
+  name: "Seven Nation Army",
+  cat:  "Song Signatures",
+  disp: "",
+  ts:   "4/4",
+  beats: [
+    S(ta,_,_,_),
+    S(_,_,di,_),
+    S(ta,_,_,mi),
+    S(_,_,di,_),
+    S(ta,_,_,_),
+    S(_,_,_,_),
+    S(ta,_,_,_),
+    S(_,_,_,_),
+  ]
+},
+
+
 ];
+
+// Default tempo for patterns that don't specify one (can be overridden per-pattern)
+PATTERNS.forEach(p => { if (p.tempo === undefined) p.tempo = 80; });
