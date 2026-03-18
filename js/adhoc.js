@@ -233,6 +233,7 @@ function setMode(mode) {
     }
   }
   updateFavoriteIndicator();
+  updateNavButtons();
 
   if (adHocMode && adHocBeats.length === 0) {
     adHocBeats = adhocDefaultMeasure(adHocTs);
