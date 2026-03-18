@@ -240,3 +240,149 @@ function setMode(mode) {
     updateAdHocBeatCount();
   }
 }
+
+// ══════════════════════════════════════════════════════════════════════════════
+// COMBINE MODE
+// ══════════════════════════════════════════════════════════════════════════════
+
+function combinePatternToAdHocBeats(pattern) {
+  return pattern.beats.map(b => ({
+    type: b.type,
+    on:   b.slots.map(s => s !== null)
+  }));
+}
+
+function combineBestTs(totalBeats, originalTs) {
+  const origN = parseInt(originalTs.split('/')[0]);
+  if (totalBeats % origN === 0) return originalTs;
+  for (const n of [4, 3, 6, 5, 7]) {
+    if (totalBeats % n === 0) return n + '/4';
+  }
+  return originalTs; // fallback — keep original even if not exact
+}
+
+function updateCombineBanner() {
+  const textEl    = document.getElementById('combineBannerText');
+  const cancelBtn = document.getElementById('combineCancelBtn');
+  if (!textEl) return;
+  if (combineAddedCount === 0) {
+    textEl.textContent    = 'Select a pattern to add';
+    cancelBtn.textContent = '✕ Cancel';
+  } else {
+    textEl.textContent    = combineAddedCount + ' pattern' + (combineAddedCount !== 1 ? 's' : '') + ' added — keep selecting or finish';
+    cancelBtn.textContent = '✓ Finish';
+  }
+}
+
+function combineEnter() {
+  if (combineMode) return;
+  if (!adHocMode && !selectedPattern) return;
+
+  const wasPlaying   = isPlaying;
+  combinePrevMode    = adHocMode ? 'adhoc' : 'library';
+  combinePrevPattern = selectedPattern;
+  combineMode        = true;
+  combineAddedCount  = 0;
+
+  if (!adHocMode) {
+    // Capture library pattern as ad hoc workspace
+    adHocTs     = selectedPattern.ts;
+    adHocBeats  = combinePatternToAdHocBeats(selectedPattern);
+    adHocName   = selectedPattern.name;
+    loadedFavId = null;
+  }
+
+  // Switch main window to ad hoc view immediately so changes are visible
+  setMode('adhoc');
+  renderAdHocGrid();
+  updateAdHocBeatCount();
+
+  // Restore playback if it was running (setMode stops it); no count-in
+  if (wasPlaying) startPlayback(adhocToPattern(), currentBPM, false);
+
+  // Re-show library controls for browsing (setMode('adhoc') hides them)
+  document.getElementById('libraryControls').style.display = 'contents';
+  document.getElementById('combineBanner').style.display   = 'flex';
+  document.getElementById('addPatternBtn').style.display   = 'none';
+  updateCombineBanner();
+  // On mobile the sidebar is a drawer — open it. On desktop it's always visible,
+  // so skip openSidebar() to avoid the overlay darkening the main panel.
+  if (window.innerWidth < 768) openSidebar();
+}
+
+function combineExit() {
+  const added   = combineAddedCount;
+  combineMode   = false;
+  combineAddedCount = 0;
+
+  document.getElementById('combineBanner').style.display        = 'none';
+  document.getElementById('addPatternBtn').style.display        = '';
+  document.getElementById('combineConfirmOverlay').style.display = 'none';
+
+  if (added === 0) {
+    // Nothing was added — restore previous state
+    if (combinePrevMode === 'library') {
+      adHocBeats = [];
+      adHocName  = 'My Rhythm';
+      adHocTs    = '4/4';
+      // We entered ad hoc mode in combineEnter, so switch back to library
+      setMode('library');
+      if (combinePrevPattern) renderGrid(combinePrevPattern);
+    } else {
+      // Was already in ad hoc — re-hide library controls
+      document.getElementById('libraryControls').style.display = 'none';
+    }
+  } else {
+    combineFinalize();
+  }
+}
+
+function combineFinalize() {
+  // Recalculate time signature if total beats no longer fits
+  adHocTs = combineBestTs(adHocBeats.length, adHocTs);
+
+  // Sync ts dropdown and badge
+  const tsSelect = document.getElementById('adhocTs');
+  if (tsSelect) tsSelect.value = adHocTs;
+
+  loadedFavId = null;
+  // setMode re-hides library controls and re-syncs all info block fields
+  setMode('adhoc');
+  renderAdHocGrid();
+  updateAdHocBeatCount();
+
+  // Remove overlay and close mobile drawer so the main panel has focus
+  closeSidebar();
+
+  // Focus the rhythm name edit field so user can rename before saving
+  setTimeout(() => { document.getElementById('nameEditBtn').click(); }, 80);
+}
+
+function combineConfirmShow(pattern) {
+  combinePendingPattern = pattern;
+  document.getElementById('combineConfirmName').textContent = pattern.name;
+  document.getElementById('combineConfirmMeta').innerHTML =
+    '<span class="badge badge-cat">' + pattern.cat + '</span> ' +
+    '<span class="badge badge-ts">'  + pattern.ts  + '</span> ' +
+    '<span class="combine-confirm-beats">' + pattern.beats.length +
+    ' beat' + (pattern.beats.length !== 1 ? 's' : '') + '</span>';
+  document.getElementById('combineConfirmOverlay').style.display = 'flex';
+}
+
+function combineConfirmAdd() {
+  if (!combinePendingPattern) return;
+  adHocBeats = adHocBeats.concat(combinePatternToAdHocBeats(combinePendingPattern));
+  combineAddedCount++;
+  combinePendingPattern = null;
+  document.getElementById('combineConfirmOverlay').style.display = 'none';
+
+  // Immediately show the updated pattern in the main window
+  renderAdHocGrid();
+  updateAdHocBeatCount();
+
+  // Always restart playback with the new combined pattern; no count-in
+  if (isPlaying) stopPlayback();
+  startPlayback(adhocToPattern(), currentBPM, false);
+
+  updateCombineBanner();
+}

@@ -27,6 +27,12 @@
       </div>
     </div>
 
+    <!-- Combine mode banner (shown when adding patterns to a rhythm) -->
+    <div class="combine-banner" id="combineBanner" style="display:none">
+      <span class="combine-banner-text" id="combineBannerText">Select a pattern to add</span>
+      <button class="combine-cancel-btn" id="combineCancelBtn">✕ Cancel</button>
+    </div>
+
     <!-- Library mode: search + categories + list -->
     <div id="libraryControls" style="display:contents">
       <div class="search-wrap">
@@ -124,11 +130,11 @@
         <div class="ctrl-group">
           <div class="ctrl-label">Options</div>
           <label class="option-row">
-            <input type="checkbox" class="toggle-check" id="metronomeCheck" checked>
+            <input type="checkbox" class="toggle-check" id="metronomeCheck">
             <span class="toggle-label">Metronome click</span>
           </label>
           <label class="option-row">
-            <input type="checkbox" class="toggle-check" id="countInCheck">
+            <input type="checkbox" class="toggle-check" id="countInCheck" checked>
             <span class="toggle-label">Count-in (1 measure)</span>
           </label>
         </div>
@@ -142,6 +148,7 @@
           <span id="playLabel">PLAY</span>
         </button>
         <button class="midi-btn" id="midiBtn" title="Download MIDI file">⬇ MIDI</button>
+        <button class="add-pattern-btn" id="addPatternBtn" title="Append another pattern to this one">+ Add Pattern</button>
         <div class="loop-counter" id="loopCounter" style="display:none">
           Loop <span id="loopNum">0</span>
         </div>
@@ -187,6 +194,19 @@
   </main><!-- end main-panel -->
 </div><!-- end app -->
 
+<!-- Combine confirm modal -->
+<div class="combine-confirm-overlay" id="combineConfirmOverlay" style="display:none">
+  <div class="combine-confirm">
+    <div class="combine-confirm-heading">Add to rhythm?</div>
+    <div class="combine-confirm-name" id="combineConfirmName"></div>
+    <div class="combine-confirm-meta" id="combineConfirmMeta"></div>
+    <div class="combine-confirm-btns">
+      <button class="combine-yes-btn" id="combineConfirmYes">+ Add</button>
+      <button class="combine-no-btn" id="combineConfirmNo">&#8592; Back</button>
+    </div>
+  </div>
+</div>
+
 <!-- Code export modal -->
 <div class="code-modal-overlay" id="codeModalOverlay" style="display:none">
   <div class="code-modal">
@@ -196,6 +216,13 @@
     </div>
     <pre class="code-modal-pre" id="codeModalPre"></pre>
     <button class="code-modal-copy" id="codeModalCopy">Copy to clipboard</button>
+    <div class="code-modal-contribute">
+      Want to add this pattern to the library? Paste the code above into
+      <code>js/patterns.js</code> and open a pull request on the repo:<br>
+      <a href="https://github.com/thinkfast37/takadimi_app" target="_blank" rel="noopener">
+        github.com/thinkfast37/takadimi_app
+      </a>
+    </div>
   </div>
 </div>
 

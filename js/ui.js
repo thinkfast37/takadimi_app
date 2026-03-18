@@ -276,9 +276,13 @@ function setTempo(bpm) {
   });
 
   // If playing, restart with new tempo
-  if (isPlaying && selectedPattern) {
-    const countIn = document.getElementById('countInCheck')?.checked;
-    startPlayback(selectedPattern, currentBPM, countIn);
+  if (isPlaying) {
+    const countIn = !combineMode && document.getElementById('countInCheck')?.checked;
+    if (adHocMode) {
+      startPlayback(adhocToPattern(), currentBPM, countIn);
+    } else if (selectedPattern) {
+      startPlayback(selectedPattern, currentBPM, countIn);
+    }
   }
 
   // Persist new BPM into the currently-loaded favourite (debounced — never blocks audio scheduler)

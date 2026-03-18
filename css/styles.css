@@ -14,9 +14,9 @@
   --amber-glow:   rgba(240,160,32,0.25);
   --amber-glow2:  rgba(240,160,32,0.08);
 
-  --text:         #dde0f4;
-  --text-dim:     #6870a0;
-  --text-muted:   #363a58;
+  --text:         #ffffff;
+  --text-dim:     #b0b8e0;
+  --text-muted:   #8890b8;
 
   /* Syllable colors */
   --c-ta:  #f0a020; /* amber  */
@@ -1013,16 +1013,18 @@ html, body {
 .name-edit-btn:hover { color: var(--amber); }
 
 .selected-name.adhoc-name {
+  color: var(--c-ka);
   cursor: pointer;
-  border-bottom: 1.5px dashed var(--text-muted);
+  border-bottom: 1.5px dashed rgba(79,195,247,0.4);
   padding-bottom: 2px;
 }
-.selected-name.adhoc-name:hover { border-bottom-color: var(--amber); }
+.selected-name.adhoc-name:hover { border-bottom-color: var(--c-ka); }
 
 .adhoc-name-input {
   font-family: var(--font-display);
   font-size: 38px;
   letter-spacing: 0.04em;
+  color: var(--c-ka);
   color: var(--text);
   background: transparent;
   border: none;
@@ -1157,3 +1159,168 @@ html, body {
   transition: all var(--trans);
 }
 .code-modal-copy:hover { border-color: var(--amber-dim); color: var(--amber); background: var(--surface3); }
+.code-modal-contribute {
+  padding: 12px 18px 16px;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--text-dim);
+  border-top: 1px solid var(--border);
+}
+.code-modal-contribute code {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text);
+  background: var(--surface3);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+.code-modal-contribute a {
+  color: var(--c-ka);
+  text-decoration: none;
+}
+.code-modal-contribute a:hover { text-decoration: underline; }
+
+/* ── ADD PATTERN BUTTON ──────────────────────────────────────────────────── */
+.add-pattern-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 16px;
+  height: 48px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  color: var(--text-dim);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.add-pattern-btn:hover {
+  color: var(--amber);
+  border-color: var(--amber-dim);
+  background: var(--amber-glow2);
+}
+
+/* ── COMBINE MODE BANNER (sidebar) ───────────────────────────────────────── */
+.combine-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 14px;
+  margin: 8px 12px 4px;
+  background: var(--amber-glow2);
+  border: 1px solid var(--amber-dim);
+  border-radius: var(--radius);
+  flex-shrink: 0;
+}
+.combine-banner-text {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--amber);
+  letter-spacing: 0.03em;
+  line-height: 1.4;
+}
+.combine-cancel-btn {
+  flex-shrink: 0;
+  background: none;
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  color: var(--text-dim);
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all var(--trans);
+}
+.combine-cancel-btn:hover { color: var(--amber); border-color: var(--amber-dim); }
+
+/* ── COMBINE CONFIRM MODAL ───────────────────────────────────────────────── */
+.combine-confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+.combine-confirm {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: calc(var(--radius) * 2);
+  width: 100%;
+  max-width: 380px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 24px 48px rgba(0,0,0,0.5);
+}
+.combine-confirm-heading {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.combine-confirm-name {
+  font-family: var(--font-display);
+  font-size: 24px;
+  color: var(--text);
+  line-height: 1.1;
+}
+.combine-confirm-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.combine-confirm-beats {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.combine-confirm-btns {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+.combine-yes-btn {
+  flex: 1;
+  padding: 11px 0;
+  background: var(--amber);
+  border: none;
+  border-radius: var(--radius);
+  color: #000;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.combine-yes-btn:hover { opacity: 0.85; }
+.combine-no-btn {
+  flex: 1;
+  padding: 11px 0;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  color: var(--text-dim);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all var(--trans);
+}
+.combine-no-btn:hover { border-color: var(--amber-dim); color: var(--amber); }

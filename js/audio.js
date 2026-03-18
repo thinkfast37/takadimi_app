@@ -165,6 +165,13 @@ function scheduler() {
 
     // Loop
     if (nextEventIdx >= patternEvents.length) {
+      // Re-snapshot the ad hoc pattern at every loop boundary so that
+      // cells toggled while playing take effect on the next iteration.
+      if (adHocMode) {
+        const flat  = flattenPattern(adhocToPattern(), currentBPM);
+        patternEvents   = flat.events;
+        patternDuration = flat.totalDuration;
+      }
       nextEventIdx = 0;
       loopCount++;
       updateLoopCounter();

@@ -16,6 +16,13 @@ var adHocBeats   = [];
 var adHocName    = 'My Rhythm';
 var loadedFavId  = null; // id of the ad hoc favourite currently loaded, or null
 
+// Combine mode state
+var combineMode           = false;
+var combineAddedCount     = 0;
+var combinePrevMode       = null;    // 'library' | 'adhoc'
+var combinePrevPattern    = null;
+var combinePendingPattern = null;
+
 // ══════════════════════════════════════════════════════════════════════════════
 // COUNTING SYSTEM
 // ══════════════════════════════════════════════════════════════════════════════
