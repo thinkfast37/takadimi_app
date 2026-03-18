@@ -78,6 +78,24 @@ function adhocRemoveLastBeat() {
   renderAdHocGrid(); updateAdHocBeatCount();
 }
 
+function adhocToCode() {
+  const name = (adHocName || 'My Rhythm').replace(/"/g, '\\"');
+  const beatLines = adHocBeats.map(b => {
+    const syls  = b.type === 'S' ? STRAIGHT_SYLS : TRIPLET_SYLS;
+    const slots = b.on.map((on, i) => on ? syls[i] : '_');
+    return '    ' + b.type + '(' + slots.join(',') + ')';
+  });
+  return '{\n'
+       + '  name: "' + name + '",\n'
+       + '  cat:  "Category Name",\n'
+       + '  disp: "",\n'
+       + '  ts:   "' + adHocTs + '",\n'
+       + '  beats: [\n'
+       + beatLines.join(',\n') + ',\n'
+       + '  ]\n'
+       + '}';
+}
+
 function adhocToPattern() {
   const beats = adHocBeats.map(b => {
     const syls  = b.type === 'S' ? STRAIGHT_SYLS : TRIPLET_SYLS;

@@ -161,6 +161,7 @@
           <button class="adhoc-btn" id="adhocAddBeatBtn">+ Beat</button>
           <button class="adhoc-btn" id="adhocAddMeasureBtn">+ Measure</button>
           <button class="adhoc-btn adhoc-btn-clear" id="adhocClearBtn">Clear</button>
+          <button class="adhoc-btn adhoc-btn-code" id="adhocCodeBtn" title="View pattern code">&lt;/&gt;</button>
         </div>
         <div class="grid-label">
           Rhythm Grid
@@ -185,6 +186,18 @@
     </div><!-- end content-area -->
   </main><!-- end main-panel -->
 </div><!-- end app -->
+
+<!-- Code export modal -->
+<div class="code-modal-overlay" id="codeModalOverlay" style="display:none">
+  <div class="code-modal">
+    <div class="code-modal-header">
+      <span class="code-modal-title">Pattern Code</span>
+      <button class="code-modal-close" id="codeModalClose">&times;</button>
+    </div>
+    <pre class="code-modal-pre" id="codeModalPre"></pre>
+    <button class="code-modal-copy" id="codeModalCopy">Copy to clipboard</button>
+  </div>
+</div>
 
 <!-- JavaScript modules — load order matters: each file depends on globals from prior files -->
 <script src="js/patterns.js"></script>
