@@ -155,7 +155,7 @@ const PATTERNS = [
   {name:"Another One Bites the Dust - Queen", cat:"Song Signatures", disp:"", ts:"4/4", bpm:80,
    beats:[S(ta,_,_,_),S(ta,_,_,_),S(ta,_,_,_),S(_,_,_,mi),
           S(ta,_,di,_),S(ta,_,di,mi),S(_,_,_,_),S(_,_,di,mi)]},
-  {name:"Seven Nation Army",       cat:"Song Signatures", disp:"", ts:"4/4", bpm:80,
+  {name:"Seven Nation Army",       cat:"Song Signatures", disp:"", ts:"4/4", bpm:124,
    beats:[
      S(ta,_,_,_),
      S(_,_,di,_),
@@ -166,5 +166,16 @@ const PATTERNS = [
      S(ta,_,_,_),
      S(_,_,_,_),
    ]},
+  {name:"The Less I Know The Better", cat:"Song Signatures", disp:"", ts:"4/4", bpm:118,
+   beats:[
+     S(ta,_,_,mi),
+     S(ta,_,_,_),
+     S(ta,ka,_,_),
+     S(ta,_,_,_),
+     S(ta,_,_,_),
+     S(ta,ka,_,_),
+     S(ta,ka,di,_),
+     S(ta,_,_,_),
+   ]}
 
 ];
