@@ -8,6 +8,7 @@ var selectedPattern = null;
 var currentBPM      = 80;
 var searchQuery     = '';
 var activeCategory  = 'All';
+var activeTag = null;
 
 // Ad hoc mode state (also used by audio.js for grid targeting)
 var adHocMode    = false;
@@ -146,11 +147,16 @@ function getCategories() {
 
 // ── FILTERED PATTERNS ─────────────────────────────────────────────────────
 function getFiltered() {
-  if (activeCategory === '♥') return getFavouritePatterns();
+  if (activeCategory === '♥') {
+    const favs = getFavouritePatterns();
+    if (!activeTag) return favs;
+    return favs.filter(p => getPatternTags(p.name).includes(activeTag));
+  }
   const q = searchQuery.toLowerCase().trim();
   return PATTERNS.filter(p => {
     const catMatch = activeCategory === 'All' || p.cat === activeCategory;
     if (!catMatch) return false;
+    if (activeTag && !getPatternTags(p.name).includes(activeTag)) return false;
     if (!q) return true;
     return p.name.toLowerCase().includes(q) ||
            p.cat.toLowerCase().includes(q) ||
@@ -161,4 +167,23 @@ function getFiltered() {
 // ── MEASURES PER PATTERN ──────────────────────────────────────────────────
 function beatsPerMeasure(ts) {
   return parseInt(ts.split('/')[0]);
+}
+
+// ── PATTERN TAGS ──────────────────────────────────────────────────────────
+const TAGS_KEY = 'takadimi_pattern_tags';
+function loadPatternTags() {
+  try { return JSON.parse(localStorage.getItem(TAGS_KEY)) || {}; } catch(e) { return {}; }
+}
+function savePatternTags(all) { localStorage.setItem(TAGS_KEY, JSON.stringify(all)); }
+function getPatternTags(name) { return loadPatternTags()[name] || []; }
+function setPatternTags(name, tagsArray) {
+  const all = loadPatternTags();
+  if (!tagsArray.length) delete all[name]; else all[name] = tagsArray;
+  savePatternTags(all);
+}
+function getAllUsedTags() {
+  const all = loadPatternTags();
+  const set = new Set();
+  Object.values(all).forEach(arr => arr.forEach(t => set.add(t)));
+  return [...set].sort();
 }

@@ -81,6 +81,7 @@ function renderPatternList() {
   // Scroll selected item into view
   const selEl = listEl.querySelector('.selected');
   if (selEl) selEl.scrollIntoView({ block: 'nearest' });
+  renderTagFilters();
 }
 
 // ── RENDER CATEGORY FILTERS ───────────────────────────────────────────────
@@ -90,6 +91,32 @@ function renderCategoryFilters() {
   ctnr.innerHTML = cats.map(c =>
     `<button class="cat-btn${activeCategory === c ? ' active' : ''}" data-cat="${c}">${c}</button>`
   ).join('');
+}
+
+// ── RENDER TAG FILTERS ─────────────────────────────────────────────────────
+function renderTagFilters() {
+  const tags = getAllUsedTags();
+  const wrap = document.getElementById('tagFiltersWrap');
+  const ctnr = document.getElementById('tagFilters');
+  if (!tags.length) { wrap.style.display = 'none'; return; }
+  wrap.style.display = '';
+  const allBtn = `<button class="cat-btn tag-filter-btn${!activeTag ? ' active' : ''}" data-tag="">All</button>`;
+  ctnr.innerHTML = allBtn + tags.map(t =>
+    `<button class="cat-btn tag-filter-btn${activeTag === t ? ' active' : ''}" data-tag="${t}">${t}</button>`
+  ).join('');
+}
+
+// ── RENDER TAGS ROW ────────────────────────────────────────────────────────
+function renderTagsRow(pattern) {
+  const row    = document.getElementById('patternTagsRow');
+  const list   = document.getElementById('patternTagsList');
+  const editBtn = document.getElementById('tagsEditBtn');
+  if (!row) return;
+  if (adHocMode || !pattern) { row.style.display = 'none'; return; }
+  row.style.display = 'flex';
+  const tags = getPatternTags(pattern.name);
+  list.innerHTML = tags.map(t => `<span class="pattern-tag-pill">${t}</span>`).join('');
+  editBtn.textContent = tags.length ? '✎' : '+ Tags';
 }
 
 // ── LEGEND ────────────────────────────────────────────────────────────────
@@ -306,6 +333,7 @@ function selectPattern(pattern) {
   updateFavoriteIndicator();
   updateStarRating();
   updateNavButtons();
+  renderTagsRow(pattern);
 
   // Close sidebar on mobile
   if (window.innerWidth < 768) closeSidebar();

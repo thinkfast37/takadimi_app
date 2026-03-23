@@ -235,6 +235,7 @@ function setMode(mode) {
   }
   updateFavoriteIndicator();
   updateNavButtons();
+  renderTagsRow(null);
 
   if (adHocMode && adHocBeats.length === 0) {
     adHocBeats = adhocDefaultMeasure(adHocTs);

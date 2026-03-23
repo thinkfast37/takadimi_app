@@ -306,4 +306,47 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault(); newBtn.click();
     }
   });
+
+  // ── Tag filters (sidebar) ─────────────────────────────────────────────────
+  document.getElementById('tagFilters').addEventListener('click', e => {
+    const btn = e.target.closest('.tag-filter-btn');
+    if (!btn) return;
+    activeTag = btn.dataset.tag || null;
+    renderTagFilters();
+    renderPatternList();
+    updateNavButtons();
+  });
+
+  // ── Tag edit modal ────────────────────────────────────────────────────────
+  document.getElementById('tagsEditBtn').addEventListener('click', () => {
+    if (!selectedPattern) return;
+    document.getElementById('tagModalInput').value = getPatternTags(selectedPattern.name).join(', ');
+    document.getElementById('tagModalOverlay').style.display = 'flex';
+    document.getElementById('tagModalInput').focus();
+  });
+
+  function closeTagModal() {
+    document.getElementById('tagModalOverlay').style.display = 'none';
+  }
+
+  function saveTagModal() {
+    if (!selectedPattern) return;
+    const raw = document.getElementById('tagModalInput').value;
+    const tags = raw.split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
+    setPatternTags(selectedPattern.name, tags);
+    renderTagsRow(selectedPattern);
+    renderTagFilters();
+    renderPatternList();
+    closeTagModal();
+  }
+
+  document.getElementById('tagModalSave').addEventListener('click', saveTagModal);
+  document.getElementById('tagModalCancel').addEventListener('click', closeTagModal);
+  document.getElementById('tagModalOverlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('tagModalOverlay')) closeTagModal();
+  });
+  document.getElementById('tagModalInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); saveTagModal(); }
+    if (e.key === 'Escape') closeTagModal();
+  });
 });
