@@ -22,8 +22,8 @@
     <!-- Mode toggle -->
     <div class="mode-toggle-wrap">
       <div class="mode-toggle">
-        <button class="mode-btn active" id="modeLibraryBtn">Library</button>
-        <button class="mode-btn" id="modeAdhocBtn">Ad Hoc</button>
+        <button class="mode-btn active" id="modeLibraryBtn">Patterns</button>
+        <button class="mode-btn" id="modeAdhocBtn">Compose</button>
       </div>
     </div>
 
@@ -41,6 +41,10 @@
                autocapitalize="off" spellcheck="false">
       </div>
       <div class="cat-scroll" id="catFilters"></div>
+      <div class="tag-filters-wrap" id="tagFiltersWrap" style="display:none">
+        <div class="tag-filters-label">Tags</div>
+        <div class="cat-scroll" id="tagFilters"></div>
+      </div>
       <div class="pattern-count" id="patternCount"></div>
       <div class="pattern-list" id="patternList"></div>
     </div>
@@ -49,8 +53,8 @@
     <div class="counting-wrap" id="countingWrap">
       <div class="counting-label">Counting System</div>
       <div class="mode-toggle">
-        <button class="mode-btn counting-btn" id="countingTakadimiBtn" data-system="takadimi">Takadimi</button>
         <button class="mode-btn counting-btn" id="countingAndABtn"     data-system="and-a">1-e-&amp;-a</button>
+        <button class="mode-btn counting-btn" id="countingTakadimiBtn" data-system="takadimi">Takadimi</button>
       </div>
     </div>
 
@@ -99,6 +103,10 @@
           </div>
           <div class="selected-meta" id="selectedMeta"></div>
           <div class="selected-display" id="selectedDisplay"></div>
+          <div class="pattern-tags-row" id="patternTagsRow" style="display:none">
+            <div class="pattern-tags-list" id="patternTagsList"></div>
+            <button class="tags-edit-btn" id="tagsEditBtn" title="Edit tags">+ Tags</button>
+          </div>
           <div class="pattern-nav-row" id="patternNavRow" style="display:none">
             <button class="pattern-nav-btn" id="prevPatternBtn">&#9664; Prev</button>
             <span class="pattern-nav-pos" id="patternNavPos"></span>
@@ -210,9 +218,23 @@
     <div class="combine-confirm-heading">Add to rhythm?</div>
     <div class="combine-confirm-name" id="combineConfirmName"></div>
     <div class="combine-confirm-meta" id="combineConfirmMeta"></div>
+    <div class="combine-confirm-grid" id="combineConfirmGrid"></div>
     <div class="combine-confirm-btns">
       <button class="combine-yes-btn" id="combineConfirmYes">+ Add</button>
       <button class="combine-no-btn" id="combineConfirmNo">&#8592; Back</button>
+    </div>
+  </div>
+</div>
+
+<!-- Tag edit modal -->
+<div class="tag-modal-overlay" id="tagModalOverlay" style="display:none">
+  <div class="tag-modal">
+    <div class="tag-modal-heading">Edit Tags</div>
+    <div class="tag-modal-sub">Separate tags with commas</div>
+    <input class="tag-modal-input" id="tagModalInput" type="text" placeholder="e.g. beginner, funk, groove" maxlength="200" />
+    <div class="tag-modal-btns">
+      <button class="combine-yes-btn" id="tagModalSave">Save</button>
+      <button class="combine-no-btn" id="tagModalCancel">Cancel</button>
     </div>
   </div>
 </div>

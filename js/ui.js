@@ -56,7 +56,7 @@ function renderPatternList() {
           <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
             <div class="pattern-item-name">${p.name}</div>
             <div class="pattern-item-meta">
-              <span class="p-cat">Ad Hoc</span>
+              <span class="p-cat">Compose</span>
               <span class="p-ts">${p.ts}</span>
               <span class="p-hits">${nBeats} beat${nBeats !== 1 ? 's' : ''}</span>
               ${starsHtml}
@@ -81,6 +81,7 @@ function renderPatternList() {
   // Scroll selected item into view
   const selEl = listEl.querySelector('.selected');
   if (selEl) selEl.scrollIntoView({ block: 'nearest' });
+  renderTagFilters();
 }
 
 // ── RENDER CATEGORY FILTERS ───────────────────────────────────────────────
@@ -90,6 +91,32 @@ function renderCategoryFilters() {
   ctnr.innerHTML = cats.map(c =>
     `<button class="cat-btn${activeCategory === c ? ' active' : ''}" data-cat="${c}">${c}</button>`
   ).join('');
+}
+
+// ── RENDER TAG FILTERS ─────────────────────────────────────────────────────
+function renderTagFilters() {
+  const tags = getAllUsedTags();
+  const wrap = document.getElementById('tagFiltersWrap');
+  const ctnr = document.getElementById('tagFilters');
+  if (!tags.length) { wrap.style.display = 'none'; return; }
+  wrap.style.display = '';
+  const allBtn = `<button class="cat-btn tag-filter-btn${!activeTag ? ' active' : ''}" data-tag="">All</button>`;
+  ctnr.innerHTML = allBtn + tags.map(t =>
+    `<button class="cat-btn tag-filter-btn${activeTag === t ? ' active' : ''}" data-tag="${t}">${t}</button>`
+  ).join('');
+}
+
+// ── RENDER TAGS ROW ────────────────────────────────────────────────────────
+function renderTagsRow(pattern) {
+  const row    = document.getElementById('patternTagsRow');
+  const list   = document.getElementById('patternTagsList');
+  const editBtn = document.getElementById('tagsEditBtn');
+  if (!row) return;
+  if (adHocMode || !pattern) { row.style.display = 'none'; return; }
+  row.style.display = 'flex';
+  const tags = getPatternTags(pattern.name);
+  list.innerHTML = tags.map(t => `<span class="pattern-tag-pill">${t}</span>`).join('');
+  editBtn.textContent = tags.length ? '✎' : '+ Tags';
 }
 
 // ── LEGEND ────────────────────────────────────────────────────────────────
@@ -126,17 +153,16 @@ function renderLegend() {
 }
 
 // ── RENDER GRID ───────────────────────────────────────────────────────────
-function renderGrid(pattern) {
-  const grid = document.getElementById('rhythmGrid');
-  if (!pattern) { grid.innerHTML = ''; return; }
+function buildGridHTML(pattern) {
+  if (!pattern) return '';
 
   const bpm_per_measure = beatsPerMeasure(pattern.ts);
   const totalBeats      = pattern.beats.length;
   const nMeasures       = Math.ceil(totalBeats / bpm_per_measure);
 
-  let gsi       = 0; // global slot index
+  let gsi        = 0;
   let beatGlobal = 0;
-  let html      = '';
+  let html       = '';
 
   for (let m = 0; m < nMeasures; m++) {
     const mStart = m * bpm_per_measure;
@@ -150,11 +176,10 @@ function renderGrid(pattern) {
     html += `<div class="beats-row">`;
 
     for (let b = 0; b < beatsInThisMeasure; b++) {
-      const beatIdx  = mStart + b;
-      const beat     = pattern.beats[beatIdx];
-      const isTrip   = beat.type === 'T';
-      const nSlots   = isTrip ? 3 : 4;
-      const beatNum  = beatGlobal + 1;
+      const beatIdx = mStart + b;
+      const beat    = pattern.beats[beatIdx];
+      const isTrip  = beat.type === 'T';
+      const beatNum = beatGlobal + 1;
 
       html += `<div class="beat-group">`;
       html += `<div class="beat-num" data-beat="${beatIdx}">${beatNum}</div>`;
@@ -179,7 +204,6 @@ function renderGrid(pattern) {
       html += `</div>`; // slots-row
       html += `</div>`; // beat-group
 
-      // Add visual separator between beats (not after the last one in the measure)
       if (b < beatsInThisMeasure - 1) {
         html += `<div class="beat-sep"></div>`;
       }
@@ -191,7 +215,12 @@ function renderGrid(pattern) {
     html += `</div>`; // measure-row
   }
 
-  grid.innerHTML = html;
+  return html;
+}
+
+function renderGrid(pattern) {
+  const grid = document.getElementById('rhythmGrid');
+  grid.innerHTML = buildGridHTML(pattern);
 }
 
 // ── STAR RATING INDICATOR ─────────────────────────────────────────────────
@@ -304,6 +333,7 @@ function selectPattern(pattern) {
   updateFavoriteIndicator();
   updateStarRating();
   updateNavButtons();
+  renderTagsRow(pattern);
 
   // Close sidebar on mobile
   if (window.innerWidth < 768) closeSidebar();
