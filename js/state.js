@@ -90,7 +90,7 @@ function getFavouritePatterns() {
     } else if (f.type === 'adhoc') {
       results.push({
         name:        f.label,
-        cat:         'Ad Hoc',
+        cat:         'Compose',
         disp:        '',
         ts:          f.ts,
         beats:       adHocBeatsToSlots(f.beats),

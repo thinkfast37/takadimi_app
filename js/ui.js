@@ -56,7 +56,7 @@ function renderPatternList() {
           <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
             <div class="pattern-item-name">${p.name}</div>
             <div class="pattern-item-meta">
-              <span class="p-cat">Ad Hoc</span>
+              <span class="p-cat">Compose</span>
               <span class="p-ts">${p.ts}</span>
               <span class="p-hits">${nBeats} beat${nBeats !== 1 ? 's' : ''}</span>
               ${starsHtml}
