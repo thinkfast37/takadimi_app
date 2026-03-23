@@ -368,6 +368,7 @@ function combineConfirmShow(pattern) {
     '<span class="badge badge-ts">'  + pattern.ts  + '</span> ' +
     '<span class="combine-confirm-beats">' + pattern.beats.length +
     ' beat' + (pattern.beats.length !== 1 ? 's' : '') + '</span>';
+  document.getElementById('combineConfirmGrid').innerHTML = buildGridHTML(pattern);
   document.getElementById('combineConfirmOverlay').style.display = 'flex';
 }
 

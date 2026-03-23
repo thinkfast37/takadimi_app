@@ -1364,6 +1364,21 @@ html, body {
   font-size: 11px;
   color: var(--text-muted);
 }
+.combine-confirm-grid {
+  overflow-x: auto;
+  margin: 4px 0 8px;
+  padding: 8px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.combine-confirm-grid .measure-row   { gap: 3px; }
+.combine-confirm-grid .beats-row     { gap: 3px; flex-wrap: wrap; }
+.combine-confirm-grid .beat-group    { gap: 2px; }
+.combine-confirm-grid .measure-label { font-size: 9px; }
+.combine-confirm-grid .beat-num      { font-size: 9px; }
+.combine-confirm-grid .slot-cell     { width: 28px; height: 28px; font-size: 9px; }
+
 .combine-confirm-btns {
   display: flex;
   gap: 10px;

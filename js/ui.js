@@ -126,17 +126,16 @@ function renderLegend() {
 }
 
 // ── RENDER GRID ───────────────────────────────────────────────────────────
-function renderGrid(pattern) {
-  const grid = document.getElementById('rhythmGrid');
-  if (!pattern) { grid.innerHTML = ''; return; }
+function buildGridHTML(pattern) {
+  if (!pattern) return '';
 
   const bpm_per_measure = beatsPerMeasure(pattern.ts);
   const totalBeats      = pattern.beats.length;
   const nMeasures       = Math.ceil(totalBeats / bpm_per_measure);
 
-  let gsi       = 0; // global slot index
+  let gsi        = 0;
   let beatGlobal = 0;
-  let html      = '';
+  let html       = '';
 
   for (let m = 0; m < nMeasures; m++) {
     const mStart = m * bpm_per_measure;
@@ -150,11 +149,10 @@ function renderGrid(pattern) {
     html += `<div class="beats-row">`;
 
     for (let b = 0; b < beatsInThisMeasure; b++) {
-      const beatIdx  = mStart + b;
-      const beat     = pattern.beats[beatIdx];
-      const isTrip   = beat.type === 'T';
-      const nSlots   = isTrip ? 3 : 4;
-      const beatNum  = beatGlobal + 1;
+      const beatIdx = mStart + b;
+      const beat    = pattern.beats[beatIdx];
+      const isTrip  = beat.type === 'T';
+      const beatNum = beatGlobal + 1;
 
       html += `<div class="beat-group">`;
       html += `<div class="beat-num" data-beat="${beatIdx}">${beatNum}</div>`;
@@ -179,7 +177,6 @@ function renderGrid(pattern) {
       html += `</div>`; // slots-row
       html += `</div>`; // beat-group
 
-      // Add visual separator between beats (not after the last one in the measure)
       if (b < beatsInThisMeasure - 1) {
         html += `<div class="beat-sep"></div>`;
       }
@@ -191,7 +188,12 @@ function renderGrid(pattern) {
     html += `</div>`; // measure-row
   }
 
-  grid.innerHTML = html;
+  return html;
+}
+
+function renderGrid(pattern) {
+  const grid = document.getElementById('rhythmGrid');
+  grid.innerHTML = buildGridHTML(pattern);
 }
 
 // ── STAR RATING INDICATOR ─────────────────────────────────────────────────
