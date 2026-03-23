@@ -27,7 +27,7 @@ var combinePendingPattern = null;
 // COUNTING SYSTEM
 // ══════════════════════════════════════════════════════════════════════════════
 const COUNTING_KEY = 'takadimi_counting_system';
-var countingSystem = localStorage.getItem(COUNTING_KEY) || 'takadimi';
+var countingSystem = localStorage.getItem(COUNTING_KEY) || 'and-a';
 
 // ══════════════════════════════════════════════════════════════════════════════
 // FAVOURITES
