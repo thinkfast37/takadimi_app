@@ -307,6 +307,7 @@ function combineEnter() {
   document.getElementById('libraryControls').style.display = 'contents';
   document.getElementById('combineBanner').style.display   = 'flex';
   document.getElementById('addPatternBtn').style.display   = 'none';
+  document.getElementById('addLayerBtn').style.display     = 'none';
   updateCombineBanner();
   // On mobile the sidebar is a drawer — open it. On desktop it's always visible,
   // so skip openSidebar() to avoid the overlay darkening the main panel.
@@ -318,8 +319,9 @@ function combineExit() {
   combineMode   = false;
   combineAddedCount = 0;
 
-  document.getElementById('combineBanner').style.display        = 'none';
-  document.getElementById('addPatternBtn').style.display        = '';
+  document.getElementById('combineBanner').style.display         = 'none';
+  document.getElementById('addPatternBtn').style.display         = '';
+  document.getElementById('addLayerBtn').style.display           = '';
   document.getElementById('combineConfirmOverlay').style.display = 'none';
 
   if (added === 0) {
@@ -371,6 +373,159 @@ function combineConfirmShow(pattern) {
     ' beat' + (pattern.beats.length !== 1 ? 's' : '') + '</span>';
   document.getElementById('combineConfirmGrid').innerHTML = buildGridHTML(pattern);
   document.getElementById('combineConfirmOverlay').style.display = 'flex';
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// LAYER MODE
+// ══════════════════════════════════════════════════════════════════════════════
+
+function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+function lcm(a, b) { return (a / gcd(a, b)) * b; }
+
+// Merge newPatternBeats (slots format) on top of baseBeats (adHoc on[] format).
+// Uses LCM to tile both patterns to the same length, then OR-merges slot-by-slot.
+// Beats with incompatible types (S vs T) keep the base beat unchanged.
+function computeLayeredBeats(baseBeats, newPatternBeats) {
+  const layerAsAdHoc = newPatternBeats.map(b => ({
+    type: b.type,
+    on:   b.slots.map(s => s !== null)
+  }));
+  const lenA  = baseBeats.length;
+  const lenB  = layerAsAdHoc.length;
+  const total = lcm(lenA, lenB);
+  const result = [];
+  for (let i = 0; i < total; i++) {
+    const a = baseBeats[i % lenA];
+    const b = layerAsAdHoc[i % lenB];
+    if (a.type !== b.type) {
+      result.push({ type: a.type, on: [...a.on] });
+    } else {
+      result.push({ type: a.type, on: a.on.map((v, j) => v || b.on[j]) });
+    }
+  }
+  return result;
+}
+
+function updateLayerBanner() {
+  const textEl    = document.getElementById('layerBannerText');
+  const cancelBtn = document.getElementById('layerCancelBtn');
+  if (!textEl) return;
+  if (layerAddedCount === 0) {
+    textEl.textContent    = 'Select a pattern to layer';
+    cancelBtn.textContent = '✕ Cancel';
+  } else {
+    textEl.textContent    = layerAddedCount + ' layer' + (layerAddedCount !== 1 ? 's' : '') + ' applied — keep selecting or finish';
+    cancelBtn.textContent = '✓ Finish';
+  }
+}
+
+function layerEnter() {
+  if (layerMode) return;
+  if (!adHocMode && !selectedPattern) return;
+
+  const wasPlaying  = isPlaying;
+  layerPrevMode     = adHocMode ? 'adhoc' : 'library';
+  layerPrevPattern  = selectedPattern;
+  layerMode         = true;
+  layerAddedCount   = 0;
+
+  if (!adHocMode) {
+    adHocTs     = selectedPattern.ts;
+    adHocBeats  = combinePatternToAdHocBeats(selectedPattern);
+    adHocName   = selectedPattern.name;
+    loadedFavId = null;
+  }
+
+  setMode('adhoc');
+  renderAdHocGrid();
+  updateAdHocBeatCount();
+
+  if (wasPlaying) startPlayback(adhocToPattern(), currentBPM, false);
+
+  document.getElementById('libraryControls').style.display = 'contents';
+  document.getElementById('layerBanner').style.display     = 'flex';
+  document.getElementById('addPatternBtn').style.display   = 'none';
+  document.getElementById('addLayerBtn').style.display     = 'none';
+  updateLayerBanner();
+
+  if (window.innerWidth < 768) openSidebar();
+}
+
+function layerExit() {
+  const added   = layerAddedCount;
+  layerMode     = false;
+  layerAddedCount = 0;
+
+  document.getElementById('layerBanner').style.display         = 'none';
+  document.getElementById('addPatternBtn').style.display       = '';
+  document.getElementById('addLayerBtn').style.display         = '';
+  document.getElementById('layerConfirmOverlay').style.display = 'none';
+
+  if (added === 0) {
+    if (layerPrevMode === 'library') {
+      adHocBeats = [];
+      adHocName  = 'My Rhythm';
+      adHocTs    = '4/4';
+      setMode('library');
+      if (layerPrevPattern) renderGrid(layerPrevPattern);
+    } else {
+      document.getElementById('libraryControls').style.display = 'none';
+    }
+  } else {
+    layerFinalize();
+  }
+}
+
+function layerFinalize() {
+  loadedFavId = null;
+  setMode('adhoc');
+  renderAdHocGrid();
+  updateAdHocBeatCount();
+  closeSidebar();
+  setTimeout(() => { document.getElementById('nameEditBtn').click(); }, 80);
+}
+
+function layerConfirmShow(pattern) {
+  layerPendingPattern = pattern;
+
+  const resultBeats = computeLayeredBeats(adHocBeats, pattern.beats);
+  const resultPattern = {
+    name:  'Result',
+    cat:   '',
+    disp:  '',
+    ts:    adHocTs,
+    beats: resultBeats.map(b => ({
+      type:  b.type,
+      slots: b.on.map((on, i) => on ? (b.type === 'S' ? STRAIGHT_SYLS[i] : TRIPLET_SYLS[i]) : null)
+    }))
+  };
+
+  document.getElementById('layerConfirmName').textContent = pattern.name;
+  document.getElementById('layerConfirmMeta').innerHTML =
+    '<span class="badge badge-cat">' + pattern.cat + '</span> ' +
+    '<span class="badge badge-ts">'  + pattern.ts  + '</span> ' +
+    '<span class="combine-confirm-beats">' + pattern.beats.length +
+    ' beat' + (pattern.beats.length !== 1 ? 's' : '') + '</span>';
+  document.getElementById('layerResultBeats').textContent =
+    resultBeats.length + ' beat' + (resultBeats.length !== 1 ? 's' : '');
+  document.getElementById('layerConfirmGrid').innerHTML = buildGridHTML(resultPattern);
+  document.getElementById('layerConfirmOverlay').style.display = 'flex';
+}
+
+function layerConfirmApply() {
+  if (!layerPendingPattern) return;
+  adHocBeats = computeLayeredBeats(adHocBeats, layerPendingPattern.beats);
+  layerAddedCount++;
+  layerPendingPattern = null;
+  document.getElementById('layerConfirmOverlay').style.display = 'none';
+
+  renderAdHocGrid();
+  updateAdHocBeatCount();
+
+  if (isPlaying) stopPlayback();
+  startPlayback(adhocToPattern(), currentBPM, false);
+
+  updateLayerBanner();
 }
 
 function combineConfirmAdd() {
