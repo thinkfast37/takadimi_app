@@ -1108,7 +1108,7 @@ html, body {
   line-height: 1;
 }
 .p-heart {
-  color: var(--amber);
+  color: #e05555;
   font-size: 10px;
   line-height: 1;
 }
