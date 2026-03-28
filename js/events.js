@@ -14,6 +14,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const item = e.target.closest('.pattern-item');
     if (!item) return;
 
+    // Layer mode: show layer confirmation instead of selecting
+    if (layerMode) {
+      let pattern = null;
+      if (item.dataset.favId) {
+        const favs = loadFavorites();
+        const fav  = favs.find(f => f.type === 'adhoc' && f.id === item.dataset.favId);
+        if (fav) pattern = { name: fav.label, cat: 'Ad Hoc', ts: fav.ts, beats: adHocBeatsToSlots(fav.beats) };
+      } else {
+        pattern = PATTERNS[+item.dataset.idx];
+      }
+      if (pattern) layerConfirmShow(pattern);
+      return;
+    }
+
     // Combine mode: show confirmation instead of selecting
     if (combineMode) {
       let pattern = null;
@@ -292,6 +306,15 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('combineConfirmNo').addEventListener('click', () => {
     combinePendingPattern = null;
     document.getElementById('combineConfirmOverlay').style.display = 'none';
+  });
+
+  // ── Layer mode ────────────────────────────────────────────────────────
+  document.getElementById('addLayerBtn').addEventListener('click', layerEnter);
+  document.getElementById('layerCancelBtn').addEventListener('click', layerExit);
+  document.getElementById('layerConfirmYes').addEventListener('click', layerConfirmApply);
+  document.getElementById('layerConfirmNo').addEventListener('click', () => {
+    layerPendingPattern = null;
+    document.getElementById('layerConfirmOverlay').style.display = 'none';
   });
 
   // ── Ad hoc code export ────────────────────────────────────────────────

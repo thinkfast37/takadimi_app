@@ -24,6 +24,13 @@ var combinePrevMode       = null;    // 'library' | 'adhoc'
 var combinePrevPattern    = null;
 var combinePendingPattern = null;
 
+// Layer mode state
+var layerMode           = false;
+var layerAddedCount     = 0;
+var layerPrevMode       = null;    // 'library' | 'adhoc'
+var layerPrevPattern    = null;
+var layerPendingPattern = null;
+
 // ══════════════════════════════════════════════════════════════════════════════
 // COUNTING SYSTEM
 // ══════════════════════════════════════════════════════════════════════════════

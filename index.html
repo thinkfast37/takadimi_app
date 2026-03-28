@@ -33,6 +33,12 @@
       <button class="combine-cancel-btn" id="combineCancelBtn">✕ Cancel</button>
     </div>
 
+    <!-- Layer mode banner (shown when layering patterns onto a rhythm) -->
+    <div class="combine-banner" id="layerBanner" style="display:none">
+      <span class="combine-banner-text" id="layerBannerText">Select a pattern to layer</span>
+      <button class="combine-cancel-btn" id="layerCancelBtn">✕ Cancel</button>
+    </div>
+
     <!-- Library mode: search + categories + list -->
     <div id="libraryControls" style="display:contents">
       <div class="search-wrap">
@@ -167,6 +173,7 @@
         </button>
         <button class="midi-btn" id="midiBtn" title="Download MIDI file">⬇ MIDI</button>
         <button class="add-pattern-btn" id="addPatternBtn" title="Append another pattern to this one">+ Add Pattern</button>
+        <button class="add-pattern-btn" id="addLayerBtn" title="Layer another pattern on top of this one">⊕ Layer</button>
         <div class="loop-counter" id="loopCounter" style="display:none">
           Loop <span id="loopNum">0</span>
         </div>
@@ -222,6 +229,23 @@
     <div class="combine-confirm-btns">
       <button class="combine-yes-btn" id="combineConfirmYes">+ Add</button>
       <button class="combine-no-btn" id="combineConfirmNo">&#8592; Back</button>
+    </div>
+  </div>
+</div>
+
+<!-- Layer confirm modal -->
+<div class="combine-confirm-overlay" id="layerConfirmOverlay" style="display:none">
+  <div class="combine-confirm layer-confirm">
+    <div class="combine-confirm-heading">Layer onto rhythm?</div>
+    <div class="combine-confirm-name" id="layerConfirmName"></div>
+    <div class="combine-confirm-meta" id="layerConfirmMeta"></div>
+    <div class="layer-confirm-result-heading">
+      Result <span class="combine-confirm-beats" id="layerResultBeats"></span>
+    </div>
+    <div class="combine-confirm-grid layer-confirm-grid" id="layerConfirmGrid"></div>
+    <div class="combine-confirm-btns">
+      <button class="combine-yes-btn" id="layerConfirmYes">⊕ Layer</button>
+      <button class="combine-no-btn" id="layerConfirmNo">&#8592; Back</button>
     </div>
   </div>
 </div>

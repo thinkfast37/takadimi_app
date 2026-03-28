@@ -1423,6 +1423,29 @@ html, body {
 }
 .combine-no-btn:hover { border-color: var(--amber-dim); color: var(--amber); }
 
+/* ── LAYER CONFIRM MODAL ─────────────────────────────────────────────────── */
+.layer-confirm { max-width: 480px; }
+
+.layer-confirm-result-heading {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.layer-confirm-grid {
+  max-height: 260px;
+  overflow-y: auto;
+}
+
 /* ── PATTERN TAGS ────────────────────────────────────────────────────────── */
 .pattern-tags-row {
   display: flex;
