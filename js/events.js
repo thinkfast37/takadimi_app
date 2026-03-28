@@ -76,7 +76,22 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ── Star rating ──────────────────────────────────────────────────────
-  document.getElementById('starRating').addEventListener('click', e => {
+  const starRatingEl = document.getElementById('starRating');
+
+  // Cumulative hover preview: light up all stars up to the hovered one
+  starRatingEl.addEventListener('mouseover', e => {
+    const btn = e.target.closest('.star-btn');
+    if (!btn) return;
+    const hoverStar = +btn.dataset.star;
+    starRatingEl.querySelectorAll('.star-btn').forEach(b => {
+      b.classList.toggle('hover-preview', +b.dataset.star <= hoverStar);
+    });
+  });
+  starRatingEl.addEventListener('mouseleave', () => {
+    starRatingEl.querySelectorAll('.star-btn').forEach(b => b.classList.remove('hover-preview'));
+  });
+
+  starRatingEl.addEventListener('click', e => {
     const btn = e.target.closest('.star-btn');
     if (!btn) return;
 

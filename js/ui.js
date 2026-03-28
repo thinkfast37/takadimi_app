@@ -64,8 +64,9 @@ function renderPatternList() {
           </div>
         </div>`;
     }
-    const idx    = PATTERNS.indexOf(p);
-    const isSelc = selectedPattern === p;
+    const idx      = PATTERNS.indexOf(p);
+    const isSelc   = selectedPattern === p;
+    const heartHtml = isLibraryFavorite(p.name) ? '<span class="p-heart">♥</span>' : '';
     return `
       <div class="pattern-item${isSelc ? ' selected' : ''}" data-idx="${idx}" role="button" tabindex="0">
         <div class="pattern-item-name">${p.name}</div>
@@ -73,7 +74,7 @@ function renderPatternList() {
           <span class="p-cat">${p.cat}</span>
           <span class="p-ts">${p.ts}</span>
           <span class="p-hits">${nBeats} beat${nBeats !== 1 ? 's' : ''}</span>
-          ${starsHtml}
+          ${starsHtml}${heartHtml}
         </div>
       </div>`;
   }).join('');
